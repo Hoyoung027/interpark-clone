@@ -23,5 +23,28 @@
 hs_err_pid*
 replay_pid*
 
-# User-specific files
-*.idea
+# macOS
+.DS_Store
+
+# Gradle
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
+build/
+out/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# VS Code, optional
+.vscode/
+
+# Local env / secrets
+.env
+.env.*
+!.env.example
+
+# Spring local config
+application-local.yaml
+application-local.yml
+
