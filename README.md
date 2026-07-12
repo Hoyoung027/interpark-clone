@@ -123,3 +123,6 @@
 - 스레드 풀 vs 커넥션 풀 중 어느 쪽이 먼저 병목이 되는지 실험
 
 ---
+
+## ERD 설계
+![interpark-erd.png](interpark-erd.png)
