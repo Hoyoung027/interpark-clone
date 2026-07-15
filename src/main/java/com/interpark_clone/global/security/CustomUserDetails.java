@@ -1,6 +1,5 @@
 package com.interpark_clone.global.security;
 
-import com.interpark_clone.domain.member.entity.MemberStatus;
 import com.interpark_clone.domain.member.entity.Role;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,10 +14,8 @@ import java.util.List;
 @Getter
 public class CustomUserDetails implements UserDetails {
 
-    private final Long memberId;
     private final String memberKey;
     private final Role role;
-    private final MemberStatus status;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -42,7 +39,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return status != MemberStatus.SUSPENDED;
+        return true;
     }
 
     @Override
@@ -52,6 +49,6 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return status == MemberStatus.ACTIVE;
+        return true;
     }
 }
