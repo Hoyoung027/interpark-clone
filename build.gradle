@@ -41,7 +41,7 @@ dependencies {
 	testRuntimeOnly 'com.h2database:h2'
 
 	// reddison
-	implementation 'org.redisson:redisson-spring-boot-starter:3.27.0'
+	implementation 'org.redisson:redisson:3.27.0'
 
 	// jwt
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'

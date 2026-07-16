@@ -106,6 +106,14 @@ public class JwtTokenProvider {
         return Role.valueOf(role);
     }
 
+    public long getAccessTokenExpiration() {
+        return accessTokenExpiration;
+    }
+
+    public long getRefreshTokenExpiration() {
+        return refreshTokenExpiration;
+    }
+
     public Authentication getAuthentication(String token) {
 
         String memberKey = getMemberKey(token);

@@ -38,6 +38,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(errorCode.getStatusCode()).body(Response.fail(errorCode));
     }
 
+    // JWT 인증 예외
+    @ExceptionHandler(JwtAuthenticationException.class)
+    public ResponseEntity<Response<Void>> handleJwtAuthenticationException(JwtAuthenticationException e) {
+        GeneralErrorCode errorCode = e.getErrorCode();
+        log.warn("JwtAuthenticationException: {} - {}", errorCode.name(), e.getMessage());
+
+        return ResponseEntity.status(errorCode.getStatusCode()).body(Response.fail(errorCode));
+    }
+
     // ==================== Spring MVC 예외 ====================
 
     // @Valid 검증 실패
