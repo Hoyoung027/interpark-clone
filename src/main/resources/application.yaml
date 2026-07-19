@@ -23,3 +23,9 @@ cookie:
 redisson:
   connection-minimum-idle-size: 24
   connection-pool-size: 64
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha

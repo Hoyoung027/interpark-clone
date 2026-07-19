@@ -16,6 +16,7 @@ import com.interpark_clone.global.exception.GeneralException;
 import com.interpark_clone.global.exception.JwtAuthenticationException;
 import com.interpark_clone.global.util.CookieUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

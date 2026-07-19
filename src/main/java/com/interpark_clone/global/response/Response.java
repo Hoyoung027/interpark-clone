@@ -51,6 +51,15 @@ public class Response<T> {
                 .build();
     }
 
+    public static <T> Response<T> success(Code code, String message) {
+        return Response.<T>builder()
+                .statusCode(code.getStatusCode())
+                .isSuccess(true)
+                .payload(null)
+                .message(message)
+                .build();
+    }
+
     public static <T> Response<T> success(Code code, T payload, String message) {
         return Response.<T>builder()
                 .statusCode(code.getStatusCode())

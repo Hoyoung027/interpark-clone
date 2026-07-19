@@ -24,7 +24,12 @@ public class SecurityConfig {
     private final CustomAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final CustomAccessDeniedHandler jwtAccessDeniedHandler;
 
-    public static final String[] PERMIT_ALL_PATHS = {"/auth/**", "/swagger-ui/**"};
+    public static final String[] PERMIT_ALL_PATHS = {
+            "/auth/**",
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/health",
+    };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
