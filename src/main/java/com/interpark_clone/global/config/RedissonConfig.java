@@ -15,10 +15,10 @@ public class RedissonConfig {
     @Value("${spring.data.redis.port:6379}")
     private int redisPort;
 
-    @Value("${redisson.connection-minimum-idle-size}")
+    @Value("${redisson.connection-minimum-idle-size:24}")
     private int connectionMinimumIdleSize;
 
-    @Value("${redisson.connection-pool-size}")
+    @Value("${redisson.connection-pool-size:64}")
     private int connectionPoolSize;
 
     @Bean
