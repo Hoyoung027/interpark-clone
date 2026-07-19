@@ -6,6 +6,7 @@ import com.interpark_clone.global.response.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -53,9 +54,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Response<Void>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         GeneralErrorCode errorCode = GeneralErrorCode.VALIDATION_ERROR;
-        log.warn("MethodArgumentNotValidException: {}", e.getMessage());
 
-        return ResponseEntity.status(errorCode.getStatusCode()).body(Response.fail(errorCode));
+        // 유효성 검증 메시지
+        String message = e.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .findFirst()
+                .map(FieldError::getDefaultMessage)
+                .orElse(errorCode.getMessage());
+
+        log.warn("MethodArgumentNotValidException: {}", message);
+
+        return ResponseEntity.status(errorCode.getStatusCode()).body(Response.fail(errorCode, message));
     }
 
     // 필수 요청 파라미터 누락

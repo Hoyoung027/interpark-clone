@@ -75,10 +75,9 @@ public class JwtTokenProvider {
                 .getPayload();
     }
 
-    public boolean validateToken(String token) {
+    public void validateToken(String token) {
         try {
             parseClaims(token);
-            return true;
         } catch (ExpiredJwtException e) {
             log.warn("[JWT] 토큰이 만료되었습니다. message={}", e.getMessage());
             throw new JwtAuthenticationException(GeneralErrorCode.TOKEN_EXPIRED);
@@ -116,8 +115,9 @@ public class JwtTokenProvider {
 
     public Authentication getAuthentication(String token) {
 
-        String memberKey = getMemberKey(token);
-        Role role = getRole(token);
+        Claims claims = parseClaims(token);
+        String memberKey = claims.getSubject();
+        Role role = Role.valueOf(claims.get("role", String.class));
 
         CustomUserDetails userDetails = CustomUserDetails.builder()
                 .memberKey(memberKey)

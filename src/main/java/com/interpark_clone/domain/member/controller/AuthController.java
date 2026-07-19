@@ -8,8 +8,10 @@ import com.interpark_clone.domain.member.dto.AuthResponse;
 import com.interpark_clone.domain.member.service.AuthService;
 import com.interpark_clone.global.code.SuccessCode;
 import com.interpark_clone.global.response.Response;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,28 +25,28 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/auth/login")
-    public ResponseEntity<Response<AuthResponse>> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<Response<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
         AuthDto loginResponse = authService.localLogin(request);
         Response<AuthResponse> response = Response.success(
                 SuccessCode.LOGIN_SUCCESS,
                 loginResponse.authResponse(),
                 "로그인 API"
         );
-        return ResponseEntity.ok()
+        return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE, loginResponse.accessTokenCookie().toString())
                 .header(HttpHeaders.SET_COOKIE, loginResponse.refreshTokenCookie().toString())
                 .body(response);
     }
 
     @PostMapping("/auth/signup")
-    public ResponseEntity<Response<AuthResponse>> signup(@RequestBody SignupRequest request) {
+    public ResponseEntity<Response<AuthResponse>> signup(@Valid @RequestBody SignupRequest request) {
         AuthDto signupResponse  = authService.signup(request);
         Response<AuthResponse> response = Response.success(
                 SuccessCode.INSERT_SUCCESS,
                 signupResponse.authResponse(),
                 "회원 가입 API"
         );
-        return ResponseEntity.status(201)
+        return ResponseEntity.status(HttpStatus.CREATED)
                 .header(HttpHeaders.SET_COOKIE, signupResponse.accessTokenCookie().toString())
                 .header(HttpHeaders.SET_COOKIE, signupResponse.refreshTokenCookie().toString())
                 .body(response);
@@ -60,7 +62,7 @@ public class AuthController {
                 reissueResponse.authResponse(),
                 "토큰 재발급 API"
         );
-        return ResponseEntity.ok()
+        return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE, reissueResponse.accessTokenCookie().toString())
                 .header(HttpHeaders.SET_COOKIE, reissueResponse.refreshTokenCookie().toString())
                 .body(response);
@@ -72,7 +74,7 @@ public class AuthController {
     ) {
         LogoutDto logoutResponse = authService.logout(refreshToken);
         Response<Void> response = Response.success(SuccessCode.DELETE_SUCCESS);
-        return ResponseEntity.ok()
+        return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE, logoutResponse.accessTokenCookie().toString())
                 .header(HttpHeaders.SET_COOKIE, logoutResponse.refreshTokenCookie().toString())
                 .body(response);

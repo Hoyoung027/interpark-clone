@@ -15,3 +15,11 @@ jwt:
   secret-key: ${JWT_SECRET_KEY}
   access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION}
   refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION}
+
+cookie:
+  secure: true
+  same-site: Lax
+
+redisson:
+  connection-minimum-idle-size: 24
+  connection-pool-size: 64

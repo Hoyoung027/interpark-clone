@@ -14,7 +14,7 @@ import com.interpark_clone.global.code.GeneralErrorCode;
 import com.interpark_clone.global.exception.BusinessException;
 import com.interpark_clone.global.exception.GeneralException;
 import com.interpark_clone.global.exception.JwtAuthenticationException;
-import com.interpark_clone.global.security.CookieUtil;
+import com.interpark_clone.global.util.CookieUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -52,7 +52,7 @@ public class AuthService {
         return response;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public AuthDto localLogin(LoginRequest request) {
 
         // member 조회
@@ -69,7 +69,6 @@ public class AuthService {
         return response;
     }
 
-    @Transactional
     public AuthDto reissue(String refreshToken) {
 
         // refresh token 유효성 검증
@@ -88,7 +87,6 @@ public class AuthService {
         return response;
     }
 
-    @Transactional
     public LogoutDto logout(String refreshToken) {
         if (refreshToken != null) {
             try {
