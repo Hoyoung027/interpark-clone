@@ -1,5 +1,7 @@
 package com.interpark_clone.domain.concert.entity;
 
+import com.interpark_clone.global.enums.AgeRating;
+import com.interpark_clone.global.enums.SaleType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -35,20 +37,43 @@ public class Concert {
     @Column(name = "poster_url", length = 500)
     private String posterUrl;
 
+    @Column(name = "video_url", length = 500)
+    private String videoUrl;
+
     @Lob
     @Column(columnDefinition = "text")
     private String description;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private SaleType saleType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private AgeRating ageRating;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private ConcertStatus status;
 
     @Builder
-    private Concert(String title, ConcertGenre genre, String posterUrl, String description, ConcertStatus status) {
+    private Concert(
+            String title,
+            ConcertGenre genre,
+            String posterUrl,
+            String videoUrl,
+            String description,
+            SaleType saleType,
+            AgeRating ageRating,
+            ConcertStatus status
+    ) {
         this.title = title;
         this.genre = genre;
         this.posterUrl = posterUrl;
+        this.videoUrl = videoUrl;
         this.description = description;
+        this.saleType = saleType;
+        this.ageRating = ageRating;
         this.status = status;
     }
 }

@@ -14,7 +14,9 @@ public enum ConcertGenre {
     FOLK_TROT("포크/트로트"),
     OVERSEAS("내한공연"),
     FESTIVAL("페스티벌"),
-    FAN_MEETING("팬클럽/팬미팅");
+    FAN_MEETING("팬클럽/팬미팅"),
+    INDIE("인디"),
+    TALK_LECTURE("토크/강연");
 
     private final String description;
 }

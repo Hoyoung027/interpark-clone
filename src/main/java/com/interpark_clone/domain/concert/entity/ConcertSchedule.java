@@ -30,8 +30,11 @@ public class ConcertSchedule {
     @Column(name = "concert_schedule_id")
     private Long id;
 
-    @Column(name = "perform_date", nullable = false)
-    private LocalDateTime performDate;
+    @Column(name = "start_date", nullable = false)
+    private LocalDateTime startDate;
+
+    @Column(name = "end_date", nullable = false)
+    private LocalDateTime endDate;
 
     @Column(name = "open_at", nullable = false)
     private LocalDateTime openAt;
@@ -50,13 +53,15 @@ public class ConcertSchedule {
 
     @Builder
     private ConcertSchedule(
-            LocalDateTime performDate,
+            LocalDateTime startDate,
+            LocalDateTime endDate,
             LocalDateTime openAt,
             ConcertStatus status,
             Venue venue,
             Concert concert
     ) {
-        this.performDate = performDate;
+        this.startDate = startDate;
+        this.endDate = endDate;
         this.openAt = openAt;
         this.status = status;
         this.venue = venue;

@@ -1,17 +1,9 @@
 package com.interpark_clone.domain.exhibition.entity;
 
 import com.interpark_clone.domain.venue.entity.Venue;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import com.interpark_clone.global.enums.AgeRating;
+import com.interpark_clone.global.enums.SaleType;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -43,8 +35,20 @@ public class Exhibition {
     @Column(name = "open_at", nullable = false)
     private LocalDateTime openAt;
 
-    @Column(nullable = false)
-    private Boolean earlybird;
+    @Column(name = "poster_url", length = 500)
+    private String posterUrl;
+
+    @Lob
+    @Column(columnDefinition = "text")
+    private String description;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private SaleType saleType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private AgeRating ageRating;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -60,7 +64,10 @@ public class Exhibition {
             LocalDate startDate,
             LocalDate endDate,
             LocalDateTime openAt,
-            Boolean earlybird,
+            String posterUrl,
+            String description,
+            SaleType saleType,
+            AgeRating ageRating,
             ExhibitionStatus status,
             Venue venue
     ) {
@@ -68,7 +75,10 @@ public class Exhibition {
         this.startDate = startDate;
         this.endDate = endDate;
         this.openAt = openAt;
-        this.earlybird = earlybird;
+        this.posterUrl = posterUrl;
+        this.description = description;
+        this.saleType = saleType;
+        this.ageRating = ageRating;
         this.status = status;
         this.venue = venue;
     }
