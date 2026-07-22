@@ -2,6 +2,7 @@ package com.interpark_clone.domain.sport.football.entity;
 
 import com.interpark_clone.domain.sport.common.entity.ClubHomeCity;
 import com.interpark_clone.domain.venue.entity.Venue;
+import com.interpark_clone.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -22,7 +23,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "football_club")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class FootballClub {
+public class FootballClub extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

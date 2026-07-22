@@ -2,6 +2,7 @@ package com.interpark_clone.domain.reservation.entity;
 
 import com.interpark_clone.domain.member.entity.Member;
 import com.interpark_clone.domain.venue.entity.Seat;
+import com.interpark_clone.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,7 +23,7 @@ import java.time.LocalDateTime;
 )
 @Getter
 @NoArgsConstructor
-public class SeatHold {
+public class SeatHold extends BaseEntity {
 
     private static final Duration HOLD_DURATION = Duration.ofMinutes(5);
 

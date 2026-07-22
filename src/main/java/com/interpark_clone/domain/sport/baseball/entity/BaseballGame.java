@@ -2,6 +2,7 @@ package com.interpark_clone.domain.sport.baseball.entity;
 
 import com.interpark_clone.domain.sport.common.entity.GameStatus;
 import com.interpark_clone.domain.venue.entity.Venue;
+import com.interpark_clone.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -24,7 +25,7 @@ import java.time.LocalDateTime;
 @Table(name = "baseball_game")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class BaseballGame {
+public class BaseballGame extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

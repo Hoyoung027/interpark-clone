@@ -1,5 +1,6 @@
 package com.interpark_clone.domain.concert.entity;
 
+import com.interpark_clone.global.entity.BaseEntity;
 import com.interpark_clone.global.enums.AgeRating;
 import com.interpark_clone.global.enums.SaleType;
 import jakarta.persistence.Column;
@@ -20,7 +21,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "concert")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Concert {
+public class Concert extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

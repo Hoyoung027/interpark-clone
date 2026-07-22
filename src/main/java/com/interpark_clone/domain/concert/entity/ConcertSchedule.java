@@ -1,6 +1,7 @@
 package com.interpark_clone.domain.concert.entity;
 
 import com.interpark_clone.domain.venue.entity.Venue;
+import com.interpark_clone.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -23,7 +24,7 @@ import java.time.LocalDateTime;
 @Table(name = "concert_schedule")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ConcertSchedule {
+public class ConcertSchedule extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,6 +1,7 @@
 package com.interpark_clone.domain.reservation.entity;
 
 import com.interpark_clone.domain.venue.entity.Seat;
+import com.interpark_clone.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +15,7 @@ import lombok.NoArgsConstructor;
 )
 @Getter
 @NoArgsConstructor
-public class ReservationSeat {
+public class ReservationSeat extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
