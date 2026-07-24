@@ -1,10 +1,10 @@
 package com.interpark_clone.domain.member.controller;
 
 import com.interpark_clone.domain.member.dto.AuthDto;
-import com.interpark_clone.domain.member.dto.LoginRequest;
+import com.interpark_clone.domain.member.dto.request.LoginRequest;
 import com.interpark_clone.domain.member.dto.LogoutDto;
-import com.interpark_clone.domain.member.dto.SignupRequest;
-import com.interpark_clone.domain.member.dto.AuthResponse;
+import com.interpark_clone.domain.member.dto.request.SignupRequest;
+import com.interpark_clone.domain.member.dto.response.AuthResponse;
 import com.interpark_clone.domain.member.service.AuthService;
 import com.interpark_clone.global.code.SuccessCode;
 import com.interpark_clone.global.response.Response;
@@ -54,7 +54,7 @@ public class AuthController {
             @ApiResponse(responseCode = "201", description = "회원가입 성공"),
             @ApiResponse(responseCode = "409", description = "이미 가입된 이메일")
     })
-    @PostMapping("/api/v1//auth/signup")
+    @PostMapping("/api/v1/auth/signup")
     public ResponseEntity<Response<AuthResponse>> signup(@Valid @RequestBody SignupRequest request) {
         AuthDto signupResponse  = authService.signup(request);
         Response<AuthResponse> response = Response.success(
@@ -73,7 +73,7 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "재발급 성공"),
             @ApiResponse(responseCode = "401", description = "refreshToken이 없거나 유효하지 않음")
     })
-    @PostMapping("/api/v1//auth/reissue")
+    @PostMapping("/api/v1/auth/reissue")
     public ResponseEntity<Response<AuthResponse>> reissue(
             @Parameter(hidden = true)
             @CookieValue(value = "refreshToken", required = false) String refreshToken
@@ -92,7 +92,7 @@ public class AuthController {
 
     @Operation(summary = "로그아웃", description = "저장된 refreshToken을 삭제하고 accessToken/refreshToken 쿠키를 만료시킵니다.")
     @ApiResponse(responseCode = "200", description = "로그아웃 성공")
-    @PostMapping("/api/v1//auth/logout")
+    @PostMapping("/api/v1/auth/logout")
     public ResponseEntity<Response<Void>> logout(
             @Parameter(hidden = true)
             @CookieValue(value = "refreshToken", required = false) String refreshToken

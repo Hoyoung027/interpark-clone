@@ -3,9 +3,11 @@ package com.interpark_clone.global.exception;
 import com.interpark_clone.global.code.BusinessErrorCode;
 import com.interpark_clone.global.code.GeneralErrorCode;
 import com.interpark_clone.global.response.Response;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -64,6 +66,39 @@ public class GlobalExceptionHandler {
                 .orElse(errorCode.getMessage());
 
         log.warn("MethodArgumentNotValidException: {}", message);
+
+        return ResponseEntity.status(errorCode.getStatusCode()).body(Response.fail(errorCode, message));
+    }
+
+    // @ModelAttribute 검증 실패
+    @ExceptionHandler(BindException.class)
+    public ResponseEntity<Response<Void>> handleBindException(BindException e) {
+        GeneralErrorCode errorCode = GeneralErrorCode.VALIDATION_ERROR;
+
+        String message = e.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .findFirst()
+                .map(FieldError::getDefaultMessage)
+                .orElse(errorCode.getMessage());
+
+        log.warn("BindException: {}", message);
+
+        return ResponseEntity.status(errorCode.getStatusCode()).body(Response.fail(errorCode, message));
+    }
+
+    // @RequestParam 검증 실패
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Response<Void>> handleConstraintViolationException(ConstraintViolationException e) {
+        GeneralErrorCode errorCode = GeneralErrorCode.VALIDATION_ERROR;
+
+        String message = e.getConstraintViolations()
+                .stream()
+                .findFirst()
+                .map(violation -> violation.getMessage())
+                .orElse(errorCode.getMessage());
+
+        log.warn("ConstraintViolationException: {}", message);
 
         return ResponseEntity.status(errorCode.getStatusCode()).body(Response.fail(errorCode, message));
     }

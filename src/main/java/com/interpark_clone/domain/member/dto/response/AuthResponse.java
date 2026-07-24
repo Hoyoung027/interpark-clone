@@ -1,4 +1,4 @@
-package com.interpark_clone.domain.member.dto;
+package com.interpark_clone.domain.member.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

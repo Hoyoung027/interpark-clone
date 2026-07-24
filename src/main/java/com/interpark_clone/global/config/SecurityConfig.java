@@ -26,6 +26,14 @@ public class SecurityConfig {
 
     public static final String[] PERMIT_ALL_PATHS = {
             "/auth/**",
+            "/api/v1/auth/**",
+            "/api/v1/concerts",
+            "/api/v1/concerts/**",
+            "/api/v1/exhibitions",
+            "/api/v1/exhibitions/**",
+            "/api/v1/openings/**",
+            "/api/v1/search",
+            "/api/v1/search/**",
             "/swagger-ui/**",
             "/v3/api-docs/**",
             "/health",
