@@ -5,6 +5,7 @@ import com.interpark_clone.domain.concert.dto.response.ConcertRankingItemRespons
 import com.interpark_clone.domain.concert.dto.response.ConcertResponse;
 import com.interpark_clone.domain.concert.entity.Concert;
 import com.interpark_clone.domain.concert.entity.ConcertGenre;
+import com.interpark_clone.domain.concert.entity.ConcertStatus;
 import com.interpark_clone.domain.venue.entity.City;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +13,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public interface ConcertRepository extends JpaRepository<Concert, Long> {
 
@@ -193,19 +195,43 @@ public interface ConcertRepository extends JpaRepository<Concert, Long> {
                     from Concert c
                     join ConcertSchedule cs on cs.concert = c
                     join cs.venue v
-                    where lower(c.title) like lower(concat('%', :keyword, '%'))
-                       or lower(v.name) like lower(concat('%', :keyword, '%'))
+                    left join Reservation r
+                        on r.eventRefId = cs.id
+                       and r.eventType = com.interpark_clone.domain.reservation.entity.EventType.CONCERT
+                       and r.status = com.interpark_clone.domain.reservation.entity.ReservationStatus.CONFIRMED
+                    left join r.reservationSeats rs
+                    where (
+                        lower(c.title) like lower(concat('%', :keyword, '%'))
+                        or lower(v.name) like lower(concat('%', :keyword, '%'))
+                    )
+                      and c.status in :statuses
+                      and (:region is null or v.city = :region)
                     group by c.id, c.title, c.posterUrl, c.genre, c.saleType, c.ageRating, c.viewCount, c.createdAt
-                    order by c.viewCount desc, c.createdAt desc
+                    order by
+                        case when :sort = 'ranking' then c.viewCount end desc,
+                        case when :sort = 'reservationCount' then count(rs.id) end desc,
+                        case when :sort = 'closingSoon' then max(cs.endDate) end asc,
+                        case when :sort = 'latest' then c.createdAt end desc,
+                        c.createdAt desc
                     """,
             countQuery = """
                     select count(distinct c.id)
                     from Concert c
                     join ConcertSchedule cs on cs.concert = c
                     join cs.venue v
-                    where lower(c.title) like lower(concat('%', :keyword, '%'))
-                       or lower(v.name) like lower(concat('%', :keyword, '%'))
+                    where (
+                        lower(c.title) like lower(concat('%', :keyword, '%'))
+                        or lower(v.name) like lower(concat('%', :keyword, '%'))
+                    )
+                      and c.status in :statuses
+                      and (:region is null or v.city = :region)
                     """
     )
-    Page<ConcertResponse> searchConcerts(String keyword, Pageable pageable);
+    Page<ConcertResponse> searchConcerts(
+            String keyword,
+            List<ConcertStatus> statuses,
+            City region,
+            String sort,
+            Pageable pageable
+    );
 }

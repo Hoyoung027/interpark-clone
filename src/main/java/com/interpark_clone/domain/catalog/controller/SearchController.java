@@ -25,7 +25,7 @@ public class SearchController {
 
     private final SearchService searchService;
 
-    @Operation(summary = "통합 검색", description = "키워드(제목/공연장명)로 콘서트와 전시를 동시에 검색하고, 각각 독립적으로 페이징된 결과로 반환합니다.")
+    @Operation(summary = "통합 검색", description = "키워드(제목/공연장명)와 필터 조건으로 콘서트와 전시를 동시에 검색하고, 각각 독립적으로 페이징된 결과로 반환합니다.")
     @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping("/api/v1/search")
     public ResponseEntity<Response<SearchResponse>> search(

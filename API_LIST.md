@@ -568,15 +568,32 @@ GET /api/v1/search
 | 이름 | 타입 | 필수 | 기본값 | 설명 |
 |---|---:|---:|---:|---|
 | `keyword` | `String` | Y | - | 검색 키워드 |
+| `type` | `String` | N | `ALL` | 검색 대상: `ALL`, `CONCERT`, `EXHIBITION` |
+| `saleStatuses` | `SearchSaleStatus[]` | N | `UPCOMING`, `OPEN` | 판매상태 필터: `UPCOMING`, `OPEN`, `CLOSED` |
+| `region` | `City` | N | - | 지역 필터 |
+| `sort` | `String` | N | `ranking` | 정렬: `ranking`, `reservationCount`, `closingSoon`, `latest` |
 | `page` | `int` | N | `0` | 페이지 번호 |
 | `size` | `int` | N | `20` | 페이지 크기 |
 
 #### Rule
 
 - 콘서트는 `Concert.title` 또는 연결된 `Venue.name`을 대상으로, 전시는 `Exhibition.title` 또는 `Venue.name`을 대상으로 대소문자 구분 없이 부분 일치(LIKE) 검색한다.
-- 콘서트와 전시를 동시에 검색하고, 결과는 `concerts`/`exhibitions`로 분리된 별도 리스트로 반환한다.
+- `type=ALL`이면 콘서트와 전시행사를 모두 검색한다.
+- `type=CONCERT`이면 콘서트만, `type=EXHIBITION`이면 전시행사만 검색한다.
+- `saleStatuses`를 생략하면 판매예정(`UPCOMING`)과 판매중(`OPEN`) 상태만 검색한다.
+- `region`이 있으면 공연장/전시장 지역 기준으로 필터링한다.
+- 결과는 `concerts`/`exhibitions`로 분리된 별도 리스트로 반환한다.
 - `page`, `size`는 `concerts`, `exhibitions` 양쪽에 동일하게 적용되지만, 각 리스트는 서로 독립적으로 페이징된다(즉, 각자 자신의 `totalElements`/`totalPages`/`hasNext`를 가진다).
-- 정렬 기준은 조회수(`viewCount`) 내림차순, 등록일(`createdAt`) 내림차순이다.
+- `ranking`은 조회수(`viewCount`) 내림차순이다.
+- `reservationCount`는 확정 예매 수 내림차순이다.
+- `closingSoon`은 종료일이 가까운 순이다.
+- `latest`는 최근 등록순이다.
+
+#### Request Example
+
+```http
+GET /api/v1/search?keyword=서울&type=ALL&saleStatuses=UPCOMING&saleStatuses=OPEN&region=SEOUL&sort=ranking&page=0&size=20
+```
 
 #### Response Payload
 

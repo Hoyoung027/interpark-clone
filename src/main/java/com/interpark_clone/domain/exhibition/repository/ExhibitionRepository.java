@@ -165,17 +165,41 @@ public interface ExhibitionRepository extends JpaRepository<Exhibition, Long> {
                     )
                     from Exhibition e
                     join e.venue v
-                    where lower(e.title) like lower(concat('%', :keyword, '%'))
-                       or lower(v.name) like lower(concat('%', :keyword, '%'))
-                    order by e.viewCount desc, e.createdAt desc
+                    left join Reservation r
+                        on r.eventRefId = e.id
+                       and r.eventType = com.interpark_clone.domain.reservation.entity.EventType.EXHIBITION
+                       and r.status = com.interpark_clone.domain.reservation.entity.ReservationStatus.CONFIRMED
+                    where (
+                        lower(e.title) like lower(concat('%', :keyword, '%'))
+                        or lower(v.name) like lower(concat('%', :keyword, '%'))
+                    )
+                      and e.status in :statuses
+                      and (:region is null or v.city = :region)
+                    group by e.id, e.title, e.posterUrl, e.genre, v.name, e.startDate, e.endDate, e.saleType, e.ageRating, e.viewCount, e.createdAt
+                    order by
+                        case when :sort = 'ranking' then e.viewCount end desc,
+                        case when :sort = 'reservationCount' then count(r.id) end desc,
+                        case when :sort = 'closingSoon' then e.endDate end asc,
+                        case when :sort = 'latest' then e.createdAt end desc,
+                        e.createdAt desc
                     """,
             countQuery = """
                     select count(e)
                     from Exhibition e
                     join e.venue v
-                    where lower(e.title) like lower(concat('%', :keyword, '%'))
-                       or lower(v.name) like lower(concat('%', :keyword, '%'))
+                    where (
+                        lower(e.title) like lower(concat('%', :keyword, '%'))
+                        or lower(v.name) like lower(concat('%', :keyword, '%'))
+                    )
+                      and e.status in :statuses
+                      and (:region is null or v.city = :region)
                     """
     )
-    Page<ExhibitionResponse> searchExhibitions(String keyword, Pageable pageable);
+    Page<ExhibitionResponse> searchExhibitions(
+            String keyword,
+            List<ExhibitionStatus> statuses,
+            City region,
+            String sort,
+            Pageable pageable
+    );
 }
