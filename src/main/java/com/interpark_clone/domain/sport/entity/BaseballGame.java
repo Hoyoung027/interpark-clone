@@ -1,6 +1,5 @@
-package com.interpark_clone.domain.sport.baseball.entity;
+package com.interpark_clone.domain.sport.entity;
 
-import com.interpark_clone.domain.sport.common.entity.GameStatus;
 import com.interpark_clone.domain.venue.entity.Venue;
 import com.interpark_clone.global.entity.BaseEntity;
 import jakarta.persistence.Column;
@@ -38,6 +37,9 @@ public class BaseballGame extends BaseEntity {
     @Column(name = "open_at", nullable = false)
     private LocalDateTime openAt;
 
+    @Column(name = "pre_sale_available", nullable = false)
+    private Boolean preSaleAvailable = false;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private GameStatus status;
@@ -58,6 +60,7 @@ public class BaseballGame extends BaseEntity {
     private BaseballGame(
             LocalDateTime gameDate,
             LocalDateTime openAt,
+            Boolean preSaleAvailable,
             GameStatus status,
             BaseballClub homeClub,
             BaseballClub awayClub,
@@ -65,6 +68,7 @@ public class BaseballGame extends BaseEntity {
     ) {
         this.gameDate = gameDate;
         this.openAt = openAt;
+        this.preSaleAvailable = preSaleAvailable != null && preSaleAvailable;
         this.status = status;
         this.homeClub = homeClub;
         this.awayClub = awayClub;

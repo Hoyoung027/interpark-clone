@@ -13,7 +13,10 @@ public enum BusinessErrorCode implements Code{
     LOGIN_FAILED(401, "이메일 혹은 비밀번호가 올바르지 않습니다."),
 
     // 콘서트 관련 에러
-    CONCERT_NOT_FOUND(404, "존재하지 않는 콘서트입니다.");
+    CONCERT_NOT_FOUND(404, "존재하지 않는 콘서트입니다."),
+
+    // 경기장 관련 에러
+    VENUE_NOT_FOUND(404, "존재하지 않는 경기장입니다.");
 
     private final int statusCode;
     private final String message;

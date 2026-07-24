@@ -1,6 +1,5 @@
-package com.interpark_clone.domain.sport.football.entity;
+package com.interpark_clone.domain.sport.entity;
 
-import com.interpark_clone.domain.sport.common.entity.ClubHomeCity;
 import com.interpark_clone.domain.venue.entity.Venue;
 import com.interpark_clone.global.entity.BaseEntity;
 import jakarta.persistence.Column;
@@ -20,14 +19,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "football_club")
+@Table(name = "baseball_club")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class FootballClub extends BaseEntity {
+public class BaseballClub extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "football_club_id")
+    @Column(name = "baseball_club_id")
     private Long id;
 
     @Column(nullable = false, length = 100)
@@ -45,7 +44,7 @@ public class FootballClub extends BaseEntity {
     private Venue venue;
 
     @Builder
-    private FootballClub(String name, ClubHomeCity home, String imageUrl, Venue venue) {
+    private BaseballClub(String name, ClubHomeCity home, String imageUrl, Venue venue) {
         this.name = name;
         this.home = home;
         this.imageUrl = imageUrl;

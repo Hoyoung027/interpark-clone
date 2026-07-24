@@ -1,4 +1,4 @@
-package com.interpark_clone.domain.sport.common.entity;
+package com.interpark_clone.domain.sport.entity;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

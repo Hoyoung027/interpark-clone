@@ -651,3 +651,179 @@ GET /api/v1/search?keyword=서울&type=ALL&saleStatuses=UPCOMING&saleStatuses=OP
 | HTTP | Code | 메시지 |
 |---:|---|---|
 | 400 | `VALIDATION_ERROR` | 입력값이 올바르지 않습니다. |
+ 
+---
+
+## Sport API
+
+### 1. 예약 가능 구단 목록 조회
+
+```http
+GET /api/v1/sports/clubs/available
+```
+
+#### Query Parameters
+
+| 이름 | 타입 | 필수 | 기본값 | 설명 |
+|---|---:|---:|---:|---|
+| `page` | `int` | N | `0` | 페이지 번호 |
+| `size` | `int` | N | `20` | 페이지 크기 |
+
+#### Rule
+
+- 예매 가능(`OPEN`) 경기가 있는 구단만 반환한다.
+- 1차 구현은 야구 구단 기준으로 반환한다.
+
+#### Response Payload
+
+```json
+[
+  {
+    "clubId": 1,
+    "name": "LG 트윈스",
+    "imageUrl": "https://example.com/lg.png"
+  }
+]
+```
+
+---
+
+### 2. 이번 주 경기 일정 조회
+
+```http
+GET /api/v1/sports/games/weekly
+```
+
+#### Query Parameters
+
+| 이름 | 타입 | 필수 | 기본값 | 설명 |
+|---|---:|---:|---:|---|
+| `page` | `int` | N | `0` | 페이지 번호 |
+| `size` | `int` | N | `20` | 페이지 크기 |
+
+#### Rule
+
+- 이번 주 월요일 00:00 이상, 다음 주 월요일 00:00 미만의 경기를 반환한다.
+- 경기 일시가 가까운 순으로 정렬한다.
+- 1차 구현은 야구 경기 기준으로 반환한다.
+
+#### Response Payload
+
+```json
+[
+  {
+    "gameId": 1,
+    "gameDate": "2026-07-25T18:30:00",
+    "homeClub": {
+      "clubId": 1,
+      "name": "LG 트윈스",
+      "imageUrl": "https://example.com/lg.png"
+    },
+    "awayClub": {
+      "clubId": 2,
+      "name": "두산 베어스",
+      "imageUrl": "https://example.com/doosan.png"
+    },
+    "venue": {
+      "venueId": 10,
+      "name": "잠실야구장"
+    }
+  }
+]
+```
+
+---
+
+### 3. 특정 구단 경기 목록 조회
+
+```http
+GET /api/v1/sports/clubs/{clubId}/games
+```
+
+#### Path Variables
+
+| 이름 | 타입 | 설명 |
+|---|---:|---|
+| `clubId` | `Long` | 구단 ID |
+
+#### Query Parameters
+
+| 이름 | 타입 | 필수 | 기본값 | 설명 |
+|---|---:|---:|---:|---|
+| `includeUpcoming` | `boolean` | N | `false` | `true`이면 오픈 예정(`SCHEDULED`) 경기도 포함 |
+| `page` | `int` | N | `0` | 페이지 번호 |
+| `size` | `int` | N | `20` | 페이지 크기 |
+
+#### Rule
+
+- 기본값은 예매 가능(`OPEN`) 경기만 반환한다.
+- `includeUpcoming=true`이면 예매 가능(`OPEN`)과 오픈 예정(`SCHEDULED`) 경기를 함께 반환한다.
+- 해당 구단이 홈팀 또는 원정팀인 경기를 모두 반환한다.
+- 경기 일시가 가까운 순으로 정렬한다.
+- 1차 구현은 야구 경기 기준으로 반환한다.
+
+#### Response Payload
+
+```json
+[
+  {
+    "gameId": 1,
+    "venueName": "잠실야구장",
+    "gameDate": "2026-07-25T18:30:00",
+    "preSaleAvailable": false,
+    "homeClub": {
+      "clubId": 1,
+      "name": "LG 트윈스",
+      "imageUrl": "https://example.com/lg.png"
+    },
+    "awayClub": {
+      "clubId": 2,
+      "name": "두산 베어스",
+      "imageUrl": "https://example.com/doosan.png"
+    }
+  }
+]
+```
+
+#### Implementation Note
+
+- 선예매 가능 여부를 반환하기 위해 `BaseballGame.preSaleAvailable` 컬럼을 추가한다.
+
+---
+
+## Venue API
+
+### 1. 경기장 상세 조회
+
+```http
+GET /api/v1/venues/{venueId}
+```
+
+#### Path Variables
+
+| 이름 | 타입 | 설명 |
+|---|---:|---|
+| `venueId` | `Long` | 경기장 ID |
+
+#### Rule
+
+- `Venue.type = STADIUM`인 경기장만 조회한다.
+- 경기장이 존재하지 않거나 `STADIUM` 타입이 아니면 `VENUE_NOT_FOUND`를 반환한다.
+
+#### Response Payload
+
+```json
+{
+  "venueId": 10,
+  "name": "잠실야구장",
+  "city": "SEOUL",
+  "address": "서울특별시 ...",
+  "imageUrl": "https://example.com/jamsil.jpg"
+}
+```
+
+#### Error
+
+| HTTP | Code | 메시지 |
+|---:|---|---|
+| 404 | `VENUE_NOT_FOUND` | 존재하지 않는 경기장입니다. |
