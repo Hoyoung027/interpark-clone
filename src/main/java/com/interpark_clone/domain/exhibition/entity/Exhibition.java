@@ -39,6 +39,13 @@ public class Exhibition extends BaseEntity {
     @Column(name = "poster_url", length = 500)
     private String posterUrl;
 
+    @Column(name = "view_count", nullable = false)
+    private Integer viewCount = 0;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private ExhibitionGenre genre;
+
     @Lob
     @Column(columnDefinition = "text")
     private String description;
@@ -66,6 +73,7 @@ public class Exhibition extends BaseEntity {
             LocalDate endDate,
             LocalDateTime openAt,
             String posterUrl,
+            ExhibitionGenre genre,
             String description,
             SaleType saleType,
             AgeRating ageRating,
@@ -77,6 +85,7 @@ public class Exhibition extends BaseEntity {
         this.endDate = endDate;
         this.openAt = openAt;
         this.posterUrl = posterUrl;
+        this.genre = genre;
         this.description = description;
         this.saleType = saleType;
         this.ageRating = ageRating;
