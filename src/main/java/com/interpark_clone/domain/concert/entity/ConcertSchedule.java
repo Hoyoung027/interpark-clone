@@ -1,7 +1,9 @@
 package com.interpark_clone.domain.concert.entity;
 
 import com.interpark_clone.domain.venue.entity.Venue;
+import com.interpark_clone.global.code.BusinessErrorCode;
 import com.interpark_clone.global.entity.BaseEntity;
+import com.interpark_clone.global.exception.BusinessException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -61,6 +63,11 @@ public class ConcertSchedule extends BaseEntity {
             Venue venue,
             Concert concert
     ) {
+
+        if (startDate == null || endDate == null || !startDate.isBefore(endDate)) {
+            throw new BusinessException(BusinessErrorCode.INVALID_CONCERT_SCHEDULE);
+        }
+
         this.startDate = startDate;
         this.endDate = endDate;
         this.openAt = openAt;

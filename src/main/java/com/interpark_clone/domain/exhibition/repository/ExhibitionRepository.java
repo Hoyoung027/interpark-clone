@@ -6,15 +6,26 @@ import com.interpark_clone.domain.exhibition.entity.Exhibition;
 import com.interpark_clone.domain.exhibition.entity.ExhibitionGenre;
 import com.interpark_clone.domain.exhibition.entity.ExhibitionStatus;
 import com.interpark_clone.domain.venue.entity.City;
+import com.interpark_clone.global.enums.SortType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface ExhibitionRepository extends JpaRepository<Exhibition, Long> {
+
+    @Query("""
+            select e
+            from Exhibition e
+            join fetch e.venue
+            where e.id = :exhibitionId
+            """)
+    Optional<Exhibition> findByIdWithVenue(@Param("exhibitionId") Long exhibitionId);
 
     @Query(
             value = """
@@ -51,10 +62,10 @@ public interface ExhibitionRepository extends JpaRepository<Exhibition, Long> {
                     """
     )
     Page<ExhibitionResponse> findExhibitionsOrderByRanking(
-            ExhibitionGenre genre,
-            City region,
-            LocalDateTime rankingStartAt,
-            LocalDateTime rankingEndAt,
+            @Param("genre") ExhibitionGenre genre,
+            @Param("region") City region,
+            @Param("rankingStartAt") LocalDateTime rankingStartAt,
+            @Param("rankingEndAt") LocalDateTime rankingEndAt,
             Pageable pageable
     );
 
@@ -86,8 +97,8 @@ public interface ExhibitionRepository extends JpaRepository<Exhibition, Long> {
                     """
     )
     Page<ExhibitionResponse> findExhibitionsOrderByClosingSoon(
-            ExhibitionGenre genre,
-            City region,
+            @Param("genre") ExhibitionGenre genre,
+            @Param("region") City region,
             Pageable pageable
     );
 
@@ -127,9 +138,9 @@ public interface ExhibitionRepository extends JpaRepository<Exhibition, Long> {
                     """
     )
     Page<ExhibitionRankingItemResponse> findDailyRankingItems(
-            ExhibitionGenre genre,
-            LocalDateTime rankingStartAt,
-            LocalDateTime rankingEndAt,
+            @Param("genre") ExhibitionGenre genre,
+            @Param("rankingStartAt") LocalDateTime rankingStartAt,
+            @Param("rankingEndAt") LocalDateTime rankingEndAt,
             Pageable pageable
     );
 
@@ -141,13 +152,19 @@ public interface ExhibitionRepository extends JpaRepository<Exhibition, Long> {
               and e.openAt <= :toAt
               and e.status = :status
               and (:region is null or e.venue.city = :region)
-            order by e.openAt asc
+            order by
+                case when :sort = com.interpark_clone.global.enums.SortType.OPEN_AT then e.openAt end asc,
+                case when :sort = com.interpark_clone.global.enums.SortType.LATEST then e.createdAt end desc,
+                case when :sort = com.interpark_clone.global.enums.SortType.VIEW then e.viewCount end desc,
+                e.createdAt desc
             """)
-    List<Exhibition> findUpcomingExhibitions(
-            LocalDateTime fromAt,
-            LocalDateTime toAt,
-            ExhibitionStatus status,
-            City region
+    Page<Exhibition> findUpcomingExhibitions(
+            @Param("fromAt") LocalDateTime fromAt,
+            @Param("toAt") LocalDateTime toAt,
+            @Param("status") ExhibitionStatus status,
+            @Param("region") City region,
+            @Param("sort") SortType sort,
+            Pageable pageable
     );
 
     @Query(
@@ -177,10 +194,10 @@ public interface ExhibitionRepository extends JpaRepository<Exhibition, Long> {
                       and (:region is null or v.city = :region)
                     group by e.id, e.title, e.posterUrl, e.genre, v.name, e.startDate, e.endDate, e.saleType, e.ageRating, e.viewCount, e.createdAt
                     order by
-                        case when :sort = 'ranking' then e.viewCount end desc,
-                        case when :sort = 'reservationCount' then count(r.id) end desc,
-                        case when :sort = 'closingSoon' then e.endDate end asc,
-                        case when :sort = 'latest' then e.createdAt end desc,
+                        case when :sort = com.interpark_clone.global.enums.SortType.VIEW then e.viewCount end desc,
+                        case when :sort = com.interpark_clone.global.enums.SortType.RESERVATION then count(r.id) end desc,
+                        case when :sort = com.interpark_clone.global.enums.SortType.CLOSING_SOON then e.endDate end asc,
+                        case when :sort = com.interpark_clone.global.enums.SortType.LATEST then e.createdAt end desc,
                         e.createdAt desc
                     """,
             countQuery = """
@@ -196,10 +213,10 @@ public interface ExhibitionRepository extends JpaRepository<Exhibition, Long> {
                     """
     )
     Page<ExhibitionResponse> searchExhibitions(
-            String keyword,
-            List<ExhibitionStatus> statuses,
-            City region,
-            String sort,
+            @Param("keyword") String keyword,
+            @Param("statuses") List<ExhibitionStatus> statuses,
+            @Param("region") City region,
+            @Param("sort") SortType sort,
             Pageable pageable
     );
 }

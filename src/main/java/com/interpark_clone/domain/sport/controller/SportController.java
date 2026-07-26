@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -66,7 +67,7 @@ public class SportController {
     @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping("/api/v1/sports/clubs/{clubId}/games")
     public ResponseEntity<Response<List<ClubSportGameResponse>>> getClubGames(
-            @PathVariable Long clubId,
+            @Positive @PathVariable Long clubId,
             @Valid @ModelAttribute ClubGamesRequest request
     ) {
         Page<ClubSportGameResponse> games = sportService.getClubGames(clubId, request);

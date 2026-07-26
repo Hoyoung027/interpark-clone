@@ -10,6 +10,18 @@ API 기본 prefix는 `/api/v1`을 사용한다.
 
 Enum 필드는 API 응답에서 enum code만 반환한다. 화면 표시 문구는 클라이언트에서 매핑한다.
 
+### SortType
+
+여러 목록 조회 API의 `sort` 쿼리 파라미터가 공통으로 사용하는 enum이다. API마다 지원하는 값의 부분집합이 다르니 각 API의 Query Parameters/Sort Rule을 함께 확인한다.
+
+| 값 | 설명 |
+|---|---|
+| `VIEW` | 조회수순 |
+| `RESERVATION` | 예약순 (콘서트: 좌석 수, 전시: 예약 건수 — API별 Sort Rule 참고) |
+| `CLOSING_SOON` | 종료일 임박순 |
+| `LATEST` | 최근 등록순 |
+| `OPEN_AT` | 오픈일 임박순 |
+
 ### Response
 
 ```json
@@ -219,8 +231,8 @@ GET /api/v1/concerts/rankings/daily
     "posterUrl": "https://example.com/poster.jpg",
     "genre": "BALLAD",
     "venueName": "블루스퀘어 우리WON뱅킹홀",
-    "startDate": "2026-10-17",
-    "endDate": "2026-10-18",
+    "startDate": "2026-10-17T18:00:00",
+    "endDate": "2026-10-18T20:00:00",
     "saleType": "EXCLUSIVE",
     "ageRating": "ALL"
   }
@@ -275,15 +287,15 @@ GET /api/v1/concerts
 |---|---:|---:|---:|---|
 | `genre` | `ConcertGenre` | N | - | 장르 필터 |
 | `region` | `City` | N | - | 지역 필터 |
-| `sort` | `String` | N | `ranking` | 정렬: `ranking`, `closingSoon` |
+| `sort` | `SortType` | N | `RESERVATION` | 정렬: `RESERVATION`, `CLOSING_SOON` |
 | `page` | `int` | N | `0` | 페이지 번호 |
 | `size` | `int` | N | `20` | 페이지 크기 |
 
 #### Sort Rule
 
-- 기본 정렬은 랭킹순이다.
-- `ranking`은 일간 랭킹 API와 동일하게 확정 좌석 수 기준으로 계산한다.
-- `closingSoon`은 콘서트 종료일이 가까운 순으로 정렬한다.
+- 기본 정렬은 예약순이다.
+- `RESERVATION`은 일간 랭킹 API와 동일하게 확정 좌석 수 기준으로 계산한다.
+- `CLOSING_SOON`은 콘서트 종료일이 가까운 순으로 정렬한다.
 
 #### Response Payload
 
@@ -295,8 +307,8 @@ GET /api/v1/concerts
     "posterUrl": "https://example.com/poster.jpg",
     "genre": "INDIE",
     "venueName": "NOL 씨어터",
-    "startDate": "2026-08-20",
-    "endDate": "2026-08-23",
+    "startDate": "2026-08-20T19:30:00",
+    "endDate": "2026-08-23T21:30:00",
     "saleType": "EXCLUSIVE",
     "ageRating": "AGE_12"
   }
@@ -317,6 +329,10 @@ GET /api/v1/concerts/{concertId}
 |---|---:|---|
 | `concertId` | `Long` | 콘서트 ID |
 
+#### Rule
+
+- 조회 성공 시 `Concert.viewCount`를 1 증가시킨다.
+
 #### Response Payload
 
 ```json
@@ -330,8 +346,8 @@ GET /api/v1/concerts/{concertId}
   "status": "OPEN",
   "saleType": "EXCLUSIVE",
   "ageRating": "AGE_12",
-  "startDate": "2026-08-20",
-  "endDate": "2026-08-23",
+  "startDate": "2026-08-20T19:30:00",
+  "endDate": "2026-08-23T21:30:00",
   "schedules": [
     {
       "scheduleId": 10,
@@ -393,8 +409,8 @@ GET /api/v1/exhibitions/rankings/daily
     "posterUrl": "https://example.com/poster.jpg",
     "genre": "EXHIBITION",
     "venueName": "예술의전당",
-    "startDate": "2026-08-01",
-    "endDate": "2026-09-30",
+    "startDate": "2026-08-01T00:00:00",
+    "endDate": "2026-09-30T23:59:59",
     "saleType": "EARLY_BIRD",
     "ageRating": "ALL"
   }
@@ -434,8 +450,8 @@ GET /api/v1/exhibitions/regions
     "posterUrl": "https://example.com/poster.jpg",
     "genre": "MUSEUM",
     "venueName": "예술의전당",
-    "startDate": "2026-08-01",
-    "endDate": "2026-09-30",
+    "startDate": "2026-08-01T00:00:00",
+    "endDate": "2026-09-30T23:59:59",
     "saleType": "DEFAULT",
     "ageRating": "ALL"
   }
@@ -456,15 +472,15 @@ GET /api/v1/exhibitions
 |---|---:|---:|---:|---|
 | `genre` | `ExhibitionGenre` | N | - | 전시 장르 필터 |
 | `region` | `City` | N | - | 지역 필터 |
-| `sort` | `String` | N | `ranking` | 정렬: `ranking`, `closingSoon` |
+| `sort` | `SortType` | N | `RESERVATION` | 정렬: `RESERVATION`, `CLOSING_SOON` |
 | `page` | `int` | N | `0` | 페이지 번호 |
 | `size` | `int` | N | `20` | 페이지 크기 |
 
 #### Sort Rule
 
-- 기본 정렬은 랭킹순이다.
-- `ranking`은 오늘 확정 예매 건수 기준으로 계산한다.
-- `closingSoon`은 전시 종료일이 가까운 순으로 정렬한다.
+- 기본 정렬은 예약순이다.
+- `RESERVATION`은 오늘 확정 예매 건수 기준으로 계산한다.
+- `CLOSING_SOON`은 전시 종료일이 가까운 순으로 정렬한다.
 
 #### Response Payload
 
@@ -476,13 +492,61 @@ GET /api/v1/exhibitions
     "posterUrl": "https://example.com/poster.jpg",
     "genre": "EVENT_FESTIVAL",
     "venueName": "예술의전당",
-    "startDate": "2026-08-01",
-    "endDate": "2026-09-30",
+    "startDate": "2026-08-01T00:00:00",
+    "endDate": "2026-09-30T23:59:59",
     "saleType": "EARLY_BIRD",
     "ageRating": "ALL"
   }
 ]
 ```
+
+---
+
+### 4. 개별 전시 정보 조회
+
+```http
+GET /api/v1/exhibitions/{exhibitionId}
+```
+
+#### Path Variables
+
+| 이름 | 타입 | 설명 |
+|---|---:|---|
+| `exhibitionId` | `Long` | 전시 ID |
+
+#### Rule
+
+- 조회 성공 시 `Exhibition.viewCount`를 1 증가시킨다.
+
+#### Response Payload
+
+```json
+{
+  "exhibitionId": 20,
+  "title": "Example Exhibition",
+  "posterUrl": "https://example.com/poster.jpg",
+  "description": "전시 소개",
+  "genre": "EVENT_FESTIVAL",
+  "status": "OPEN",
+  "saleType": "EARLY_BIRD",
+  "ageRating": "ALL",
+  "openAt": "2026-07-25T14:00:00",
+  "startDate": "2026-08-01T00:00:00",
+  "endDate": "2026-09-30T23:59:59",
+  "venue": {
+    "venueId": 3,
+    "name": "예술의전당",
+    "city": "SEOUL",
+    "address": "서울특별시 ..."
+  }
+}
+```
+
+#### Error
+
+| HTTP | Code | 메시지 |
+|---:|---|---|
+| 404 | `EXHIBITION_NOT_FOUND` | 존재하지 않는 전시입니다. |
 
 ---
 
@@ -496,28 +560,28 @@ GET /api/v1/openings/upcoming
 
 #### Query Parameters
 
-| 이름 | 타입 | 필수 | 기본값 | 설명 |
-|---|---:|---:|---:|---|
-| `type` | `String` | N | `ALL` | `ALL`, `CONCERT`, `EXHIBITION` |
-| `region` | `City` | N | - | 지역 필터 |
-| `sort` | `String` | N | `openAt` | 정렬: `viewCount`, `openAt`, `latest` |
-| `from` | `LocalDate` | N | 내일 | 예매 오픈 시작일 |
+| 이름 | 타입 | 필수 |         기본값 | 설명 |
+|---|---:|---:|------------:|---|
+| `type` | `String` | N |   `CONCERT` | `CONCERT`, `EXHIBITION` |
+| `region` | `City` | N |           - | 지역 필터 |
+| `sort` | `SortType` | N |    `OPEN_AT` | 정렬: `VIEW`, `OPEN_AT`, `LATEST` |
+| `from` | `LocalDate` | N |          내일 | 예매 오픈 시작일 |
 | `to` | `LocalDate` | N | `from + 6일` | 예매 오픈 종료일 |
-| `page` | `int` | N | `0` | 페이지 번호 |
-| `size` | `int` | N | `20` | 페이지 크기 |
+| `page` | `int` | N |         `0` | 페이지 번호 |
+| `size` | `int` | N |        `20` | 페이지 크기 |
 
 #### Rule
 
 - 콘서트는 `ConcertSchedule.openAt` 기준으로 조회한다.
 - 전시는 `Exhibition.openAt` 기준으로 조회한다.
-- `type=ALL`이면 콘서트와 전시행사를 모두 조회한다.
 - `type=CONCERT`이면 콘서트만, `type=EXHIBITION`이면 전시행사만 조회한다.
 - `region`이 있으면 공연장/전시장 지역 기준으로 필터링한다.
-- `openAt`은 곧 공개되는 순으로 정렬한다.
-- `latest`는 등록순으로 정렬한다.
-- `viewCount`는 조회수 높은 순으로 정렬한다.
+- `OPEN_AT`은 곧 공개되는 순으로 정렬한다.
+- `LATEST`는 등록순으로 정렬한다.
+- `VIEW`는 조회수 높은 순으로 정렬한다.
 - 날짜 단위로 조회한다. `from=2026-07-21`, `to=2026-07-27`이면 `2026-07-21T00:00:00` 이상, `2026-07-27T23:59:59.999999999` 이하의 오픈 예정 항목을 반환한다.
 - `from`, `to`를 모두 생략하면 내일부터 7일간의 오픈 예정 항목을 반환한다.
+- 최대 120일 범위까지 조회 가능하다. 120일을 초과하면 `DATE_RANGE_TOO_LARGE`를 반환한다.
 
 #### Response Payload
 
@@ -531,8 +595,8 @@ GET /api/v1/openings/upcoming
     "posterUrl": "https://example.com/poster.jpg",
     "venueName": "올림픽공원 KSPO DOME",
     "openAt": "2026-07-30T20:00:00",
-    "startDate": "2026-08-15",
-    "endDate": "2026-08-16",
+    "startDate": "2026-08-15T18:00:00",
+    "endDate": "2026-08-16T20:00:00",
     "saleType": "MEMBERSHIP_PRE_SALE",
     "ageRating": "ALL",
     "status": "UPCOMING"
@@ -544,8 +608,8 @@ GET /api/v1/openings/upcoming
     "posterUrl": "https://example.com/poster.jpg",
     "venueName": "예술의전당",
     "openAt": "2026-07-25T14:00:00",
-    "startDate": "2026-08-01",
-    "endDate": "2026-09-30",
+    "startDate": "2026-08-01T00:00:00",
+    "endDate": "2026-09-30T23:59:59",
     "saleType": "EARLY_BIRD",
     "ageRating": "ALL",
     "status": "UPCOMING"
@@ -571,7 +635,7 @@ GET /api/v1/search
 | `type` | `String` | N | `ALL` | 검색 대상: `ALL`, `CONCERT`, `EXHIBITION` |
 | `saleStatuses` | `SearchSaleStatus[]` | N | `UPCOMING`, `OPEN` | 판매상태 필터: `UPCOMING`, `OPEN`, `CLOSED` |
 | `region` | `City` | N | - | 지역 필터 |
-| `sort` | `String` | N | `ranking` | 정렬: `ranking`, `reservationCount`, `closingSoon`, `latest` |
+| `sort` | `SortType` | N | `VIEW` | 정렬: `VIEW`, `RESERVATION`, `CLOSING_SOON`, `LATEST` |
 | `page` | `int` | N | `0` | 페이지 번호 |
 | `size` | `int` | N | `20` | 페이지 크기 |
 
@@ -584,15 +648,17 @@ GET /api/v1/search
 - `region`이 있으면 공연장/전시장 지역 기준으로 필터링한다.
 - 결과는 `concerts`/`exhibitions`로 분리된 별도 리스트로 반환한다.
 - `page`, `size`는 `concerts`, `exhibitions` 양쪽에 동일하게 적용되지만, 각 리스트는 서로 독립적으로 페이징된다(즉, 각자 자신의 `totalElements`/`totalPages`/`hasNext`를 가진다).
-- `ranking`은 조회수(`viewCount`) 내림차순이다.
-- `reservationCount`는 확정 예매 수 내림차순이다.
-- `closingSoon`은 종료일이 가까운 순이다.
-- `latest`는 최근 등록순이다.
+- `VIEW`는 조회수(`viewCount`) 내림차순이다.
+- `RESERVATION`은 콘서트와 전시에서 집계 단위가 다르다.
+  - 콘서트: 확정 예약의 좌석(`ReservationSeat`) 수 내림차순. 한 예약에 여러 좌석이 포함될 수 있어 예약 건수가 아닌 좌석 수 기준으로 집계한다.
+  - 전시: 좌석 개념이 없으므로 확정 예약(`Reservation`) 건수 내림차순으로 집계한다.
+- `CLOSING_SOON`은 종료일이 가까운 순이다.
+- `LATEST`는 최근 등록순이다.
 
 #### Request Example
 
 ```http
-GET /api/v1/search?keyword=서울&type=ALL&saleStatuses=UPCOMING&saleStatuses=OPEN&region=SEOUL&sort=ranking&page=0&size=20
+GET /api/v1/search?keyword=서울&type=ALL&saleStatuses=UPCOMING&saleStatuses=OPEN&region=SEOUL&sort=VIEW&page=0&size=20
 ```
 
 #### Response Payload
@@ -636,8 +702,8 @@ GET /api/v1/search?keyword=서울&type=ALL&saleStatuses=UPCOMING&saleStatuses=OP
         "posterUrl": "https://example.com/poster.jpg",
         "genre": "EXHIBITION",
         "venueName": "예술의전당",
-        "startDate": "2026-08-01",
-        "endDate": "2026-09-30",
+        "startDate": "2026-08-01T00:00:00",
+        "endDate": "2026-09-30T23:59:59",
         "saleType": "EARLY_BIRD",
         "ageRating": "ALL"
       }

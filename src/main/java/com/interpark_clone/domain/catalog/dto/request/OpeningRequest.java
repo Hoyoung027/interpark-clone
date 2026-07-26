@@ -1,19 +1,23 @@
 package com.interpark_clone.domain.catalog.dto.request;
 
-import com.interpark_clone.domain.catalog.dto.OpeningType;
+import com.interpark_clone.global.enums.Genre;
 import com.interpark_clone.domain.venue.entity.City;
+import com.interpark_clone.global.enums.SortType;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.EnumSet;
+import java.util.Set;
 
 @ParameterObject
 public record OpeningRequest(
-        OpeningType type,
+        Genre genre,
         City region,
-        String sort,
+        SortType sort,
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
         LocalDate from,
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
@@ -24,15 +28,18 @@ public record OpeningRequest(
         @Max(value = 100, message = "size는 100 이하여야 합니다.")
         Integer size
 ) {
-    private static final String DEFAULT_SORT = "openAt";
+    private static final SortType DEFAULT_SORT = SortType.OPEN_AT;
+    private static final Set<SortType> ALLOWED_SORTS = EnumSet.of(
+            SortType.OPEN_AT, SortType.LATEST, SortType.VIEW
+    );
     private static final int DEFAULT_PAGE = 0;
     private static final int DEFAULT_SIZE = 20;
 
-    public OpeningType typeValue() {
-        if (type == null) {
-            return OpeningType.ALL;
+    public Genre genreValue() {
+        if (genre == null) {
+            return Genre.CONCERT;
         }
-        return type;
+        return genre;
     }
 
     public LocalDate fromValue() {
@@ -49,11 +56,22 @@ public record OpeningRequest(
         return to;
     }
 
-    public String sortValue() {
-        if (sort == null || sort.isBlank()) {
+    public boolean isValidPeriod() {
+        if (ChronoUnit.DAYS.between(fromValue(), toValue()) > 120) {
+            return false;
+        }
+        return true;
+    }
+
+    public SortType sortValue() {
+        if (sort == null) {
             return DEFAULT_SORT;
         }
-        return sort.trim();
+        return sort;
+    }
+
+    public boolean isValidSort() {
+        return ALLOWED_SORTS.contains(sortValue());
     }
 
     public int pageValue() {

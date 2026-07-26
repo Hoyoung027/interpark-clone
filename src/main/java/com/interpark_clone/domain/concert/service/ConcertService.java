@@ -41,7 +41,7 @@ public class ConcertService {
 
         return switch (request.normalizedSort()) {
             // 랭킹순 정렬
-            case "ranking" -> {
+            case RESERVATION -> {
                 LocalDate today = LocalDate.now();
                 yield concertRepository.findConcertsOrderByRanking(
                         request.genre(),
@@ -52,7 +52,7 @@ public class ConcertService {
                 );
             }
             // 공연 종료 임박순
-            case "closingSoon" -> concertRepository.findConcertsOrderByClosingSoon(
+            case CLOSING_SOON -> concertRepository.findConcertsOrderByClosingSoon(
                     request.genre(),
                     request.region(),
                     pageable
@@ -77,12 +77,14 @@ public class ConcertService {
         return clips;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public ConcertDetailResponse getConcert(Long concertId) {
 
         // 콘서트 정보 조회
         Concert concert = concertRepository.findById(concertId)
                 .orElseThrow(() -> new BusinessException(BusinessErrorCode.CONCERT_NOT_FOUND));
+
+        concert.increaseViewCount();
 
         // 콘서트 회차 정보 조회
         List<ConcertSchedule> schedule = concertScheduleRepository.findByConcertIdWithVenue(concertId);

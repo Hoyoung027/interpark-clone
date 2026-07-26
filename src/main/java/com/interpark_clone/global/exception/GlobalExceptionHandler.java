@@ -9,6 +9,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+import java.util.Comparator;
 
 @Slf4j
 @RestControllerAdvice
@@ -59,10 +62,10 @@ public class GlobalExceptionHandler {
 
         // 유효성 검증 메시지
         String message = e.getBindingResult()
-                .getFieldErrors()
+                .getAllErrors()
                 .stream()
                 .findFirst()
-                .map(FieldError::getDefaultMessage)
+                .map(ObjectError::getDefaultMessage)
                 .orElse(errorCode.getMessage());
 
         log.warn("MethodArgumentNotValidException: {}", message);
@@ -76,10 +79,10 @@ public class GlobalExceptionHandler {
         GeneralErrorCode errorCode = GeneralErrorCode.VALIDATION_ERROR;
 
         String message = e.getBindingResult()
-                .getFieldErrors()
+                .getAllErrors()
                 .stream()
                 .findFirst()
-                .map(FieldError::getDefaultMessage)
+                .map(ObjectError::getDefaultMessage)
                 .orElse(errorCode.getMessage());
 
         log.warn("BindException: {}", message);
@@ -94,6 +97,7 @@ public class GlobalExceptionHandler {
 
         String message = e.getConstraintViolations()
                 .stream()
+                .sorted(Comparator.comparing(violation -> violation.getPropertyPath().toString()))
                 .findFirst()
                 .map(violation -> violation.getMessage())
                 .orElse(errorCode.getMessage());

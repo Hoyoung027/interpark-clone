@@ -33,27 +33,30 @@ public class SearchService {
         // DTO 가공
         String keyword = request.normalizedKeyword();
         List<SearchSaleStatus> saleStatuses = request.saleStatusValues();
-        String sort = request.normalizedSort();
-        validateSort(sort);
+
+        // 정렬 기준 검증
+        if (!request.isValidSort()) {
+            throw new GeneralException(GeneralErrorCode.INVALID_REQUEST_PARAMETER);
+        }
 
         // 콘서트 및 전시 조회
         Pageable pageable = PageRequest.of(request.pageValue(), request.sizeValue());
-        Page<ConcertResponse> concerts = switch (request.typeValue()) {
+        Page<ConcertResponse> concerts = switch (request.genreValue()) {
             case ALL, CONCERT -> concertRepository.searchConcerts(
                     keyword,
                     concertStatuses(saleStatuses),
                     request.region(),
-                    sort,
+                    request.sortValue(),
                     pageable
             );
             case EXHIBITION -> Page.empty(pageable);
         };
-        Page<ExhibitionResponse> exhibitions = switch (request.typeValue()) {
+        Page<ExhibitionResponse> exhibitions = switch (request.genreValue()) {
             case ALL, EXHIBITION -> exhibitionRepository.searchExhibitions(
                     keyword,
                     exhibitionStatuses(saleStatuses),
                     request.region(),
-                    sort,
+                    request.sortValue(),
                     pageable
             );
             case CONCERT -> Page.empty(pageable);
@@ -82,13 +85,5 @@ public class SearchService {
                 })
                 .distinct()
                 .toList();
-    }
-
-    private void validateSort(String sort) {
-        switch (sort) {
-            case "ranking", "reservationCount", "closingSoon", "latest" -> {
-            }
-            default -> throw new GeneralException(GeneralErrorCode.INVALID_REQUEST_PARAMETER);
-        }
     }
 }

@@ -7,10 +7,12 @@ import com.interpark_clone.domain.concert.entity.Concert;
 import com.interpark_clone.domain.concert.entity.ConcertGenre;
 import com.interpark_clone.domain.concert.entity.ConcertStatus;
 import com.interpark_clone.domain.venue.entity.City;
+import com.interpark_clone.global.enums.SortType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -55,10 +57,10 @@ public interface ConcertRepository extends JpaRepository<Concert, Long> {
                     """
     )
     Page<ConcertResponse> findConcertsOrderByRanking(
-            ConcertGenre genre,
-            City region,
-            LocalDateTime rankingStartAt,
-            LocalDateTime rankingEndAt,
+            @Param("genre") ConcertGenre genre,
+            @Param("region") City region,
+            @Param("rankingStartAt") LocalDateTime rankingStartAt,
+            @Param("rankingEndAt") LocalDateTime rankingEndAt,
             Pageable pageable
     );
 
@@ -93,8 +95,8 @@ public interface ConcertRepository extends JpaRepository<Concert, Long> {
                     """
     )
     Page<ConcertResponse> findConcertsOrderByClosingSoon(
-            ConcertGenre genre,
-            City region,
+            @Param("genre") ConcertGenre genre,
+            @Param("region") City region,
             Pageable pageable
     );
 
@@ -128,8 +130,8 @@ public interface ConcertRepository extends JpaRepository<Concert, Long> {
                     """
     )
     Page<ConcertClipResponse> findConcertClipsOrderByRanking(
-            LocalDateTime rankingStartAt,
-            LocalDateTime rankingEndAt,
+            @Param("rankingStartAt") LocalDateTime rankingStartAt,
+            @Param("rankingEndAt") LocalDateTime rankingEndAt,
             Pageable pageable
     );
 
@@ -173,9 +175,9 @@ public interface ConcertRepository extends JpaRepository<Concert, Long> {
                     """
     )
     Page<ConcertRankingItemResponse> findDailyRankingItems(
-            ConcertGenre genre,
-            LocalDateTime rankingStartAt,
-            LocalDateTime rankingEndAt,
+            @Param("genre") ConcertGenre genre,
+            @Param("rankingStartAt") LocalDateTime rankingStartAt,
+            @Param("rankingEndAt") LocalDateTime rankingEndAt,
             Pageable pageable
     );
 
@@ -208,10 +210,10 @@ public interface ConcertRepository extends JpaRepository<Concert, Long> {
                       and (:region is null or v.city = :region)
                     group by c.id, c.title, c.posterUrl, c.genre, c.saleType, c.ageRating, c.viewCount, c.createdAt
                     order by
-                        case when :sort = 'ranking' then c.viewCount end desc,
-                        case when :sort = 'reservationCount' then count(rs.id) end desc,
-                        case when :sort = 'closingSoon' then max(cs.endDate) end asc,
-                        case when :sort = 'latest' then c.createdAt end desc,
+                        case when :sort = com.interpark_clone.global.enums.SortType.VIEW then c.viewCount end desc,
+                        case when :sort = com.interpark_clone.global.enums.SortType.RESERVATION then count(rs.id) end desc,
+                        case when :sort = com.interpark_clone.global.enums.SortType.CLOSING_SOON then max(cs.endDate) end asc,
+                        case when :sort = com.interpark_clone.global.enums.SortType.LATEST then c.createdAt end desc,
                         c.createdAt desc
                     """,
             countQuery = """
@@ -228,10 +230,10 @@ public interface ConcertRepository extends JpaRepository<Concert, Long> {
                     """
     )
     Page<ConcertResponse> searchConcerts(
-            String keyword,
-            List<ConcertStatus> statuses,
-            City region,
-            String sort,
+            @Param("keyword") String keyword,
+            @Param("statuses") List<ConcertStatus> statuses,
+            @Param("region") City region,
+            @Param("sort") SortType sort,
             Pageable pageable
     );
 }

@@ -1,39 +1,39 @@
 package com.interpark_clone.domain.catalog.dto.response;
 
-import com.interpark_clone.domain.catalog.dto.OpeningType;
+import com.interpark_clone.global.enums.Genre;
 import com.interpark_clone.domain.concert.entity.ConcertSchedule;
 import com.interpark_clone.domain.exhibition.entity.Exhibition;
 import com.interpark_clone.global.enums.AgeRating;
 import com.interpark_clone.global.enums.SaleType;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public record OpeningResponse(
-        OpeningType type,
+        Genre type,
         Long contentId,
         Long scheduleId,
         String title,
         String posterUrl,
         String venueName,
         LocalDateTime openAt,
-        LocalDate startDate,
-        LocalDate endDate,
+        LocalDateTime startDate,
+        LocalDateTime endDate,
         SaleType saleType,
         AgeRating ageRating,
         String status
 ) {
     public static OpeningResponse fromConcertSchedule(ConcertSchedule schedule) {
         return new OpeningResponse(
-                OpeningType.CONCERT,
+                Genre.CONCERT,
                 schedule.getConcert().getId(),
                 schedule.getId(),
                 schedule.getConcert().getTitle(),
                 schedule.getConcert().getPosterUrl(),
                 schedule.getVenue().getName(),
                 schedule.getOpenAt(),
-                schedule.getStartDate().toLocalDate(),
-                schedule.getEndDate().toLocalDate(),
+                schedule.getStartDate(),
+                schedule.getEndDate(),
                 schedule.getConcert().getSaleType(),
                 schedule.getConcert().getAgeRating(),
                 schedule.getStatus().name()
@@ -42,15 +42,15 @@ public record OpeningResponse(
 
     public static OpeningResponse fromExhibition(Exhibition exhibition) {
         return new OpeningResponse(
-                OpeningType.EXHIBITION,
+                Genre.EXHIBITION,
                 exhibition.getId(),
                 null,
                 exhibition.getTitle(),
                 exhibition.getPosterUrl(),
                 exhibition.getVenue().getName(),
                 exhibition.getOpenAt(),
-                exhibition.getStartDate(),
-                exhibition.getEndDate(),
+                exhibition.getStartDate().atStartOfDay(),
+                exhibition.getEndDate().atTime(LocalTime.of(23, 59, 59)),
                 exhibition.getSaleType(),
                 exhibition.getAgeRating(),
                 exhibition.getStatus().name()

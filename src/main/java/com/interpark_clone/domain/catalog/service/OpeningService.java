@@ -7,11 +7,13 @@ import com.interpark_clone.domain.exhibition.repository.ExhibitionRepository;
 import com.interpark_clone.domain.catalog.dto.request.OpeningRequest;
 import com.interpark_clone.domain.catalog.dto.response.OpeningResponse;
 import com.interpark_clone.domain.venue.entity.City;
+import com.interpark_clone.global.code.BusinessErrorCode;
 import com.interpark_clone.global.code.GeneralErrorCode;
+import com.interpark_clone.global.enums.SortType;
+import com.interpark_clone.global.exception.BusinessException;
 import com.interpark_clone.global.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,9 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -33,12 +32,20 @@ public class OpeningService {
     @Transactional(readOnly = true)
     public Page<OpeningResponse> getUpcomingOpenings(OpeningRequest request) {
 
-        // 조회 기간 가공
+        // DTO 가공
         LocalDate from = request.fromValue();
         LocalDate to = request.toValue();
 
         // 조회 기간 검증
         if (to.isBefore(from)) {
+            throw new GeneralException(GeneralErrorCode.INVALID_REQUEST_PARAMETER);
+        }
+        if (!request.isValidPeriod()) {
+            throw new BusinessException(BusinessErrorCode.DATE_RANGE_TOO_LARGE);
+        }
+
+        // 정렬 기준 검증
+        if (!request.isValidSort()) {
             throw new GeneralException(GeneralErrorCode.INVALID_REQUEST_PARAMETER);
         }
 
@@ -47,90 +54,41 @@ public class OpeningService {
         LocalDateTime toAt = to.plusDays(1).atStartOfDay().minusNanos(1);
 
         // 타입별 오픈 예정 목록 조회
-        List<OpeningItem> openings = switch (request.typeValue()) {
-            case ALL -> Stream.concat(
-                            getConcertOpenings(fromAt, toAt, request.region()).stream(),
-                            getExhibitionOpenings(fromAt, toAt, request.region()).stream()
-                    )
-                    .toList();
-            case CONCERT -> getConcertOpenings(fromAt, toAt, request.region());
-            case EXHIBITION -> getExhibitionOpenings(fromAt, toAt, request.region());
+        Pageable pageable = PageRequest.of(request.pageValue(), request.sizeValue());
+        Page<OpeningResponse> result = switch (request.genreValue()) {
+            case CONCERT -> getConcertOpenings(fromAt, toAt, request.region(), request.sortValue(), pageable);
+            case EXHIBITION -> getExhibitionOpenings(fromAt, toAt, request.region(), request.sortValue(), pageable);
+            case ALL -> throw new GeneralException(GeneralErrorCode.INVALID_REQUEST_PARAMETER);
         };
 
-        // 정렬 기준 적용
-        List<OpeningResponse> sortedOpenings = openings.stream()
-                .sorted(openingComparator(request.sortValue()))
-                .map(OpeningItem::response)
-                .toList();
-
-        // 메모리 페이지네이션 적용
-        Pageable pageable = PageRequest.of(request.pageValue(), request.sizeValue());
-        int fromIndex = Math.min((int) pageable.getOffset(), sortedOpenings.size());
-        int toIndex = Math.min(fromIndex + pageable.getPageSize(), sortedOpenings.size());
-
-        return new PageImpl<>(
-                sortedOpenings.subList(fromIndex, toIndex),
-                pageable,
-                sortedOpenings.size()
-        );
+        return result;
     }
 
-    private List<OpeningItem> getConcertOpenings(LocalDateTime fromAt, LocalDateTime toAt, City region) {
+    private Page<OpeningResponse> getConcertOpenings(LocalDateTime fromAt, LocalDateTime toAt, City region, SortType sort, Pageable pageable) {
 
         // 오픈 예정 콘서트 회차 조회
         return concertScheduleRepository.findUpcomingSchedules(
                         fromAt,
                         toAt,
                         ConcertStatus.UPCOMING,
-                        region
+                        region,
+                        sort,
+                        pageable
                 )
-                .stream()
-                .map(schedule -> new OpeningItem(
-                        OpeningResponse.fromConcertSchedule(schedule),
-                        schedule.getOpenAt(),
-                        schedule.getConcert().getViewCount(),
-                        schedule.getConcert().getCreatedAt()
-                ))
-                .toList();
+                .map(OpeningResponse::fromConcertSchedule);
     }
 
-    private List<OpeningItem> getExhibitionOpenings(LocalDateTime fromAt, LocalDateTime toAt, City region) {
+    private Page<OpeningResponse> getExhibitionOpenings(LocalDateTime fromAt, LocalDateTime toAt, City region, SortType sort, Pageable pageable) {
 
         // 오픈 예정 전시 조회
         return exhibitionRepository.findUpcomingExhibitions(
                         fromAt,
                         toAt,
                         ExhibitionStatus.UPCOMING,
-                        region
+                        region,
+                        sort,
+                        pageable
                 )
-                .stream()
-                .map(exhibition -> new OpeningItem(
-                        OpeningResponse.fromExhibition(exhibition),
-                        exhibition.getOpenAt(),
-                        exhibition.getViewCount(),
-                        exhibition.getCreatedAt()
-                ))
-                .toList();
-    }
-
-    private Comparator<OpeningItem> openingComparator(String sort) {
-
-        // 정렬 조건 생성
-        return switch (sort) {
-            case "openAt" -> Comparator.comparing(OpeningItem::openAt);
-            case "latest" -> Comparator.comparing(OpeningItem::createdAt, Comparator.nullsLast(Comparator.naturalOrder()))
-                    .reversed();
-            case "viewCount" -> Comparator.comparing(OpeningItem::viewCount, Comparator.nullsLast(Comparator.naturalOrder()))
-                    .reversed();
-            default -> throw new GeneralException(GeneralErrorCode.INVALID_REQUEST_PARAMETER);
-        };
-    }
-
-    private record OpeningItem(
-            OpeningResponse response,
-            LocalDateTime openAt,
-            Integer viewCount,
-            LocalDateTime createdAt
-    ) {
+                .map(OpeningResponse::fromExhibition);
     }
 }

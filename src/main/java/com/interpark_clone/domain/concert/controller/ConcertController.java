@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -72,7 +73,7 @@ public class ConcertController {
     })
     @GetMapping("/api/v1/concerts/{concertId}")
     public ResponseEntity<Response<ConcertDetailResponse>> getConcert(
-            @PathVariable Long concertId
+            @Positive @PathVariable Long concertId
     ) {
         ConcertDetailResponse concert = concertService.getConcert(concertId);
         Response<ConcertDetailResponse> response = Response.success(
@@ -83,7 +84,7 @@ public class ConcertController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @Operation(summary = "일간 랭킹 콘서트 목록 조회", description = "특정 날짜(기본값: 오늘) 기준 장르별 예매 건수로 집계한 일간 랭킹을 페이지 단위로 조회합니다.")
+    @Operation(summary = "일간 랭킹 콘서트 목록 조회", description = "특정 날짜(기본값: 오늘)의 예매 건수로 집계한 일간 랭킹을 페이지 단위로 조회합니다.")
     @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping("/api/v1/concerts/rankings/daily")
     public ResponseEntity<Response<List<ConcertRankingResponse>>> getDailyRankings(

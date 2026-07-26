@@ -4,7 +4,7 @@ import com.interpark_clone.domain.exhibition.entity.ExhibitionGenre;
 import com.interpark_clone.global.enums.AgeRating;
 import com.interpark_clone.global.enums.SaleType;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public record ExhibitionRankingResponse(
         int rank,
@@ -13,8 +13,8 @@ public record ExhibitionRankingResponse(
         String posterUrl,
         ExhibitionGenre genre,
         String venueName,
-        LocalDate startDate,
-        LocalDate endDate,
+        LocalDateTime startDate,
+        LocalDateTime endDate,
         SaleType saleType,
         AgeRating ageRating
 ) {

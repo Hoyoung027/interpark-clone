@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface BaseballClubRepository extends JpaRepository<BaseballClub, Long> {
 
@@ -32,5 +33,8 @@ public interface BaseballClubRepository extends JpaRepository<BaseballClub, Long
                     )
                     """
     )
-    Page<BaseballClub> findAvailableClubs(GameStatus status, Pageable pageable);
+    Page<BaseballClub> findAvailableClubs(
+            @Param("status") GameStatus status,
+            Pageable pageable
+    );
 }

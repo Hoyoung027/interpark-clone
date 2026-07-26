@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,7 +31,11 @@ public interface BaseballGameRepository extends JpaRepository<BaseballGame, Long
                       and game.gameDate < :toAt
                     """
     )
-    Page<BaseballGame> findWeeklyGames(LocalDateTime fromAt, LocalDateTime toAt, Pageable pageable);
+    Page<BaseballGame> findWeeklyGames(
+            @Param("fromAt") LocalDateTime fromAt,
+            @Param("toAt") LocalDateTime toAt,
+            Pageable pageable
+    );
 
     @Query(
             value = """
@@ -50,5 +55,9 @@ public interface BaseballGameRepository extends JpaRepository<BaseballGame, Long
                       and game.status in :statuses
                     """
     )
-    Page<BaseballGame> findGamesByClub(Long clubId, List<GameStatus> statuses, Pageable pageable);
+    Page<BaseballGame> findGamesByClub(
+            @Param("clubId") Long clubId,
+            @Param("statuses") List<GameStatus> statuses,
+            Pageable pageable
+    );
 }

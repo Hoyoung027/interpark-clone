@@ -5,9 +5,13 @@ import com.interpark_clone.domain.exhibition.dto.request.ExhibitionRequest;
 import com.interpark_clone.domain.exhibition.dto.request.RegionalExhibitionRequest;
 import com.interpark_clone.domain.exhibition.dto.response.ExhibitionRankingItemResponse;
 import com.interpark_clone.domain.exhibition.dto.response.ExhibitionRankingResponse;
+import com.interpark_clone.domain.exhibition.dto.response.ExhibitionDetailResponse;
 import com.interpark_clone.domain.exhibition.dto.response.ExhibitionResponse;
+import com.interpark_clone.domain.exhibition.entity.Exhibition;
 import com.interpark_clone.domain.exhibition.repository.ExhibitionRepository;
+import com.interpark_clone.global.code.BusinessErrorCode;
 import com.interpark_clone.global.code.GeneralErrorCode;
+import com.interpark_clone.global.exception.BusinessException;
 import com.interpark_clone.global.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,6 +31,18 @@ public class ExhibitionService {
 
     private final ExhibitionRepository exhibitionRepository;
 
+    @Transactional
+    public ExhibitionDetailResponse getExhibition(Long exhibitionId) {
+
+        // 전시 정보 조회
+        Exhibition exhibition = exhibitionRepository.findByIdWithVenue(exhibitionId)
+                .orElseThrow(() -> new BusinessException(BusinessErrorCode.EXHIBITION_NOT_FOUND));
+
+        exhibition.increaseViewCount();
+
+        return ExhibitionDetailResponse.from(exhibition);
+    }
+
     @Transactional(readOnly = true)
     public Page<ExhibitionResponse> getExhibitions(ExhibitionRequest request) {
 
@@ -35,7 +51,7 @@ public class ExhibitionService {
 
         return switch (request.normalizedSort()) {
             // 랭킹순 정렬
-            case "ranking" -> {
+            case RESERVATION -> {
                 LocalDate today = LocalDate.now();
                 yield exhibitionRepository.findExhibitionsOrderByRanking(
                         request.genre(),
@@ -46,7 +62,7 @@ public class ExhibitionService {
                 );
             }
             // 전시 종료 임박순
-            case "closingSoon" -> exhibitionRepository.findExhibitionsOrderByClosingSoon(
+            case CLOSING_SOON -> exhibitionRepository.findExhibitionsOrderByClosingSoon(
                     request.genre(),
                     request.region(),
                     pageable

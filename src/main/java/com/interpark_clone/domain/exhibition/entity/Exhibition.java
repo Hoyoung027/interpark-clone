@@ -1,9 +1,11 @@
 package com.interpark_clone.domain.exhibition.entity;
 
 import com.interpark_clone.domain.venue.entity.Venue;
+import com.interpark_clone.global.code.BusinessErrorCode;
 import com.interpark_clone.global.entity.BaseEntity;
 import com.interpark_clone.global.enums.AgeRating;
 import com.interpark_clone.global.enums.SaleType;
+import com.interpark_clone.global.exception.BusinessException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -80,6 +82,11 @@ public class Exhibition extends BaseEntity {
             ExhibitionStatus status,
             Venue venue
     ) {
+
+        if (startDate == null || endDate == null || !startDate.isBefore(endDate)) {
+            throw new BusinessException(BusinessErrorCode.INVALID_EXHIBITION_SCHEDULE);
+        }
+
         this.title = title;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -91,5 +98,9 @@ public class Exhibition extends BaseEntity {
         this.ageRating = ageRating;
         this.status = status;
         this.venue = venue;
+    }
+
+    public void increaseViewCount() {
+        this.viewCount = this.viewCount == null ? 1 : this.viewCount + 1;
     }
 }
