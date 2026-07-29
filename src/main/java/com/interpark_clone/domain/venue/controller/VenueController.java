@@ -5,6 +5,7 @@ import com.interpark_clone.domain.venue.service.VenueService;
 import com.interpark_clone.global.code.SuccessCode;
 import com.interpark_clone.global.response.Response;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,6 +32,7 @@ public class VenueController {
     })
     @GetMapping("/api/v1/venues/{venueId}")
     public ResponseEntity<Response<StadiumResponse>> getStadium(
+            @Parameter(description = "조회할 경기장 ID", required = true, example = "1")
             @PathVariable Long venueId
     ) {
         StadiumResponse stadium = venueService.getStadium(venueId);

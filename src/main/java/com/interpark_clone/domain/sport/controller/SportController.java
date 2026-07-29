@@ -9,6 +9,7 @@ import com.interpark_clone.domain.sport.service.SportService;
 import com.interpark_clone.global.code.SuccessCode;
 import com.interpark_clone.global.response.Response;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -67,6 +68,7 @@ public class SportController {
     @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping("/api/v1/sports/clubs/{clubId}/games")
     public ResponseEntity<Response<List<ClubSportGameResponse>>> getClubGames(
+            @Parameter(description = "조회할 야구 구단 ID", required = true, example = "1")
             @Positive @PathVariable Long clubId,
             @Valid @ModelAttribute ClubGamesRequest request
     ) {
