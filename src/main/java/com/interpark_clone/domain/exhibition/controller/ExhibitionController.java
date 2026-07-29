@@ -55,7 +55,7 @@ public class ExhibitionController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @Operation(summary = "전시 목록 조회", description = "장르/지역으로 필터링하고 오늘 확정 예매 수 기준 랭킹순 또는 전시 종료 임박순으로 전시 목록을 페이지 단위로 조회합니다.")
+    @Operation(summary = "전시 목록 조회", description = "장르/지역으로 필터링하고 오늘 확정 예매 매수 기준 랭킹순 또는 전시 종료 임박순으로 전시 목록을 페이지 단위로 조회합니다.")
     @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping("/api/v1/exhibitions")
     public ResponseEntity<Response<List<ExhibitionResponse>>> getExhibitions(
@@ -70,7 +70,7 @@ public class ExhibitionController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @Operation(summary = "지역별 전시 목록 조회", description = "지역으로 필터링한 전시 목록을 오늘 확정 예매 수 기준 랭킹순으로 페이지 단위로 조회합니다.")
+    @Operation(summary = "지역별 전시 목록 조회", description = "지역으로 필터링한 전시 목록을 오늘 확정 예매 매수 기준 랭킹순으로 페이지 단위로 조회합니다.")
     @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping("/api/v1/exhibitions/regions")
     public ResponseEntity<Response<List<ExhibitionResponse>>> getRegionalExhibitions(
@@ -85,7 +85,7 @@ public class ExhibitionController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @Operation(summary = "일간 랭킹 전시 목록 조회", description = "특정 날짜(기본값: 오늘)의 확정 예매 수로 집계한 일간 랭킹을 페이지 단위로 조회합니다. 장르는 순위 산정 후 분류가 아니라 집계 대상 필터로 적용됩니다.")
+    @Operation(summary = "일간 랭킹 전시 목록 조회", description = "특정 날짜(기본값: 오늘)의 확정 예매 매수로 집계한 일간 랭킹을 페이지 단위로 조회합니다. 장르는 순위 산정 후 분류가 아니라 집계 대상 필터로 적용됩니다.")
     @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping("/api/v1/exhibitions/rankings/daily")
     public ResponseEntity<Response<List<ExhibitionRankingResponse>>> getDailyRankings(

@@ -1,6 +1,7 @@
 package com.interpark_clone.domain.exhibition.dto.request;
 
 import com.interpark_clone.domain.venue.entity.City;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -9,7 +10,14 @@ import org.springdoc.core.annotations.ParameterObject;
 
 @ParameterObject
 public record RegionalExhibitionRequest(
-        @Schema(description = "조회할 지역입니다.", requiredMode = Schema.RequiredMode.REQUIRED, example = "SEOUL")
+        @Parameter(
+                description = "조회할 지역입니다.",
+                required = true,
+                schema = @Schema(type = "string", allowableValues = {
+                        "SEOUL", "GYEONGGI", "INCHEON", "GYEONGNAM", "BUSAN", "GYEONGBUK", "DAEGU", "JEONNAM",
+                        "GWANGJU", "JEONBUK", "CHUNGNAM", "DAEJEON", "CHUNGBUK", "GANGWON", "JEJU", "ULSAN"
+                })
+        )
         @NotNull(message = "region은 필수입니다.")
         City region,
         @Schema(description = "페이지 번호입니다. 0부터 시작합니다.", defaultValue = "0", minimum = "0", example = "0")
@@ -23,17 +31,8 @@ public record RegionalExhibitionRequest(
     private static final int DEFAULT_PAGE = 0;
     private static final int DEFAULT_SIZE = 20;
 
-    public int pageValue() {
-        if (page == null) {
-            return DEFAULT_PAGE;
-        }
-        return page;
-    }
-
-    public int sizeValue() {
-        if (size == null) {
-            return DEFAULT_SIZE;
-        }
-        return size;
+    public RegionalExhibitionRequest {
+        page = page == null ? DEFAULT_PAGE : page;
+        size = size == null ? DEFAULT_SIZE : size;
     }
 }

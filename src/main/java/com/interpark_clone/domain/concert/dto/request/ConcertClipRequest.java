@@ -18,17 +18,8 @@ public record ConcertClipRequest(
     private static final int DEFAULT_PAGE = 0;
     private static final int DEFAULT_SIZE = 10;
 
-    public int pageValue() {
-        if (page == null) {
-            return DEFAULT_PAGE;
-        }
-        return page;
-    }
-
-    public int sizeValue() {
-        if (size == null) {
-            return DEFAULT_SIZE;
-        }
-        return size;
+    public ConcertClipRequest {
+        page = page == null ? DEFAULT_PAGE : page;
+        size = size == null ? DEFAULT_SIZE : size;
     }
 }

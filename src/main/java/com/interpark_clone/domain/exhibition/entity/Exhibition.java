@@ -99,8 +99,4 @@ public class Exhibition extends BaseEntity {
         this.status = status;
         this.venue = venue;
     }
-
-    public void increaseViewCount() {
-        this.viewCount = this.viewCount == null ? 1 : this.viewCount + 1;
-    }
 }

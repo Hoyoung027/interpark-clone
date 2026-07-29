@@ -7,10 +7,10 @@ import com.interpark_clone.domain.concert.entity.Concert;
 import com.interpark_clone.domain.concert.entity.ConcertGenre;
 import com.interpark_clone.domain.concert.entity.ConcertStatus;
 import com.interpark_clone.domain.venue.entity.City;
-import com.interpark_clone.global.enums.SortType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -18,6 +18,16 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ConcertRepository extends JpaRepository<Concert, Long> {
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(
+            value = """
+                update Concert c
+                set c.viewCount = c.viewCount + 1
+                where c.id = :concertId
+            """
+    )
+    int increaseViewCount(@Param("concertId") Long concertId);
 
     @Query(
             value = """
@@ -210,10 +220,10 @@ public interface ConcertRepository extends JpaRepository<Concert, Long> {
                       and (:region is null or v.city = :region)
                     group by c.id, c.title, c.posterUrl, c.genre, c.saleType, c.ageRating, c.viewCount, c.createdAt
                     order by
-                        case when :sort = com.interpark_clone.global.enums.SortType.VIEW then c.viewCount end desc,
-                        case when :sort = com.interpark_clone.global.enums.SortType.RESERVATION then count(rs.id) end desc,
-                        case when :sort = com.interpark_clone.global.enums.SortType.CLOSING_SOON then max(cs.endDate) end asc,
-                        case when :sort = com.interpark_clone.global.enums.SortType.LATEST then c.createdAt end desc,
+                        case when :sort = 'VIEW' then c.viewCount end desc,
+                        case when :sort = 'RESERVATION' then count(rs.id) end desc,
+                        case when :sort = 'CLOSING_SOON' then max(cs.endDate) end asc,
+                        case when :sort = 'LATEST' then c.createdAt end desc,
                         c.createdAt desc
                     """,
             countQuery = """
@@ -233,7 +243,7 @@ public interface ConcertRepository extends JpaRepository<Concert, Long> {
             @Param("keyword") String keyword,
             @Param("statuses") List<ConcertStatus> statuses,
             @Param("region") City region,
-            @Param("sort") SortType sort,
+            @Param("sort") String sort,
             Pageable pageable
     );
 }

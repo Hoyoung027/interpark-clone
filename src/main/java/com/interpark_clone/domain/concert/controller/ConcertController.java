@@ -37,7 +37,7 @@ public class ConcertController {
 
     private final ConcertService concertService;
 
-    @Operation(summary = "콘서트 목록 조회", description = "장르/지역으로 필터링하고 오늘 확정 예매 수 기준 랭킹순 또는 공연 종료 임박순으로 콘서트 목록을 페이지 단위로 조회합니다.")
+    @Operation(summary = "콘서트 목록 조회", description = "장르/지역으로 필터링하고 오늘 확정 예매 좌석 수 기준 랭킹순 또는 공연 종료 임박순으로 콘서트 목록을 페이지 단위로 조회합니다.")
     @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping("/api/v1/concerts")
     public ResponseEntity<Response<List<ConcertResponse>>> getConcerts(
@@ -52,7 +52,7 @@ public class ConcertController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @Operation(summary = "콘서트 클립 목록 조회", description = "영상 URL이 등록된 콘서트를 오늘 확정 예매 수 기준 랭킹순으로 페이지 단위로 조회합니다.")
+    @Operation(summary = "콘서트 클립 목록 조회", description = "영상 URL이 등록된 콘서트를 오늘 확정 예매 좌석 수 기준 랭킹순으로 페이지 단위로 조회합니다.")
     @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping("/api/v1/concerts/clips")
     public ResponseEntity<Response<List<ConcertClipResponse>>> getConcertClips(
@@ -86,7 +86,7 @@ public class ConcertController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @Operation(summary = "일간 랭킹 콘서트 목록 조회", description = "특정 날짜(기본값: 오늘)의 확정 예매 수로 집계한 일간 랭킹을 페이지 단위로 조회합니다. 장르는 순위 산정 후 분류가 아니라 집계 대상 필터로 적용됩니다.")
+    @Operation(summary = "일간 랭킹 콘서트 목록 조회", description = "특정 날짜(기본값: 오늘)의 확정 예매 좌석 수로 집계한 일간 랭킹을 페이지 단위로 조회합니다. 장르는 순위 산정 후 분류가 아니라 집계 대상 필터로 적용됩니다.")
     @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping("/api/v1/concerts/rankings/daily")
     public ResponseEntity<Response<List<ConcertRankingResponse>>> getDailyRankings(

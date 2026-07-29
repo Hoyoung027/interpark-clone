@@ -32,7 +32,7 @@ public class SportService {
     public Page<SportClubResponse> getAvailableClubs(SportPageRequest request) {
 
         // 예약 가능 구단 조회
-        Pageable pageable = PageRequest.of(request.pageValue(), request.sizeValue());
+        Pageable pageable = PageRequest.of(request.page(), request.size());
 
         return baseballClubRepository.findAvailableClubs(GameStatus.OPEN, pageable)
                 .map(SportClubResponse::from);
@@ -46,7 +46,7 @@ public class SportService {
         LocalDateTime toAt = monday.plusWeeks(1).atStartOfDay();
 
         // 이번 주 경기 일정 조회
-        Pageable pageable = PageRequest.of(request.pageValue(), request.sizeValue());
+        Pageable pageable = PageRequest.of(request.page(), request.size());
 
         return baseballGameRepository.findWeeklyGames(fromAt, toAt, pageable)
                 .map(WeeklySportGameResponse::from);
@@ -55,12 +55,12 @@ public class SportService {
     public Page<ClubSportGameResponse> getClubGames(Long clubId, ClubGamesRequest request) {
 
         // 조회 대상 경기 상태 생성
-        List<GameStatus> statuses = request.includeUpcomingValue()
+        List<GameStatus> statuses = request.includeUpcoming()
                 ? List.of(GameStatus.OPEN, GameStatus.SCHEDULED)
                 : List.of(GameStatus.OPEN);
 
         // 특정 구단 경기 목록 조회
-        Pageable pageable = PageRequest.of(request.pageValue(), request.sizeValue());
+        Pageable pageable = PageRequest.of(request.page(), request.size());
 
         return baseballGameRepository.findGamesByClub(clubId, statuses, pageable)
                 .map(ClubSportGameResponse::from);

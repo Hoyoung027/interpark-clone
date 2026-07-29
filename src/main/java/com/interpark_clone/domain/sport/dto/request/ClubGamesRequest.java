@@ -20,21 +20,9 @@ public record ClubGamesRequest(
     private static final int DEFAULT_PAGE = 0;
     private static final int DEFAULT_SIZE = 20;
 
-    public boolean includeUpcomingValue() {
-        return Boolean.TRUE.equals(includeUpcoming);
-    }
-
-    public int pageValue() {
-        if (page == null) {
-            return DEFAULT_PAGE;
-        }
-        return page;
-    }
-
-    public int sizeValue() {
-        if (size == null) {
-            return DEFAULT_SIZE;
-        }
-        return size;
+    public ClubGamesRequest {
+        includeUpcoming = includeUpcoming == null ? Boolean.FALSE : includeUpcoming;
+        page = page == null ? DEFAULT_PAGE : page;
+        size = size == null ? DEFAULT_SIZE : size;
     }
 }

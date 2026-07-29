@@ -80,8 +80,4 @@ public class Concert extends BaseEntity {
         this.ageRating = ageRating;
         this.status = status;
     }
-
-    public void increaseViewCount() {
-        this.viewCount = this.viewCount == null ? 1 : this.viewCount + 1;
-    }
 }

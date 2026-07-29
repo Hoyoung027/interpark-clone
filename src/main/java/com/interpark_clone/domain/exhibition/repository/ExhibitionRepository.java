@@ -6,10 +6,10 @@ import com.interpark_clone.domain.exhibition.entity.Exhibition;
 import com.interpark_clone.domain.exhibition.entity.ExhibitionGenre;
 import com.interpark_clone.domain.exhibition.entity.ExhibitionStatus;
 import com.interpark_clone.domain.venue.entity.City;
-import com.interpark_clone.global.enums.SortType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -18,6 +18,17 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ExhibitionRepository extends JpaRepository<Exhibition, Long> {
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(
+            value = """
+                update Exhibition e
+                set e.viewCount = e.viewCount + 1
+                where e.id = :exhibitionId
+            """
+    )
+    int increaseViewCount(@Param("exhibitionId") Long exhibitionId);
+
 
     @Query("""
             select e
@@ -51,7 +62,7 @@ public interface ExhibitionRepository extends JpaRepository<Exhibition, Long> {
                     where (:genre is null or e.genre = :genre)
                       and (:region is null or v.city = :region)
                     group by e.id, e.title, e.posterUrl, e.genre, v.name, e.startDate, e.endDate, e.saleType, e.ageRating, e.createdAt
-                    order by count(r.id) desc, e.createdAt desc
+                    order by coalesce(sum(r.ticketQuantity), 0) desc, e.createdAt desc
                     """,
             countQuery = """
                     select count(e.id)
@@ -124,7 +135,7 @@ public interface ExhibitionRepository extends JpaRepository<Exhibition, Long> {
                       and r.createdAt < :rankingEndAt
                       and (:genre is null or e.genre = :genre)
                     group by e.id, e.title, e.posterUrl, e.genre, v.name, e.startDate, e.endDate, e.saleType, e.ageRating, e.createdAt
-                    order by count(r.id) desc, e.createdAt desc
+                    order by coalesce(sum(r.ticketQuantity), 0) desc, e.createdAt desc
                     """,
             countQuery = """
                     select count(distinct e.id)
@@ -153,9 +164,9 @@ public interface ExhibitionRepository extends JpaRepository<Exhibition, Long> {
               and e.status = :status
               and (:region is null or e.venue.city = :region)
             order by
-                case when :sort = com.interpark_clone.global.enums.SortType.OPEN_AT then e.openAt end asc,
-                case when :sort = com.interpark_clone.global.enums.SortType.LATEST then e.createdAt end desc,
-                case when :sort = com.interpark_clone.global.enums.SortType.VIEW then e.viewCount end desc,
+                case when :sort = 'OPEN_AT' then e.openAt end asc,
+                case when :sort = 'LATEST' then e.createdAt end desc,
+                case when :sort = 'VIEW' then e.viewCount end desc,
                 e.createdAt desc
             """)
     Page<Exhibition> findUpcomingExhibitions(
@@ -163,7 +174,7 @@ public interface ExhibitionRepository extends JpaRepository<Exhibition, Long> {
             @Param("toAt") LocalDateTime toAt,
             @Param("status") ExhibitionStatus status,
             @Param("region") City region,
-            @Param("sort") SortType sort,
+            @Param("sort") String sort,
             Pageable pageable
     );
 
@@ -194,10 +205,10 @@ public interface ExhibitionRepository extends JpaRepository<Exhibition, Long> {
                       and (:region is null or v.city = :region)
                     group by e.id, e.title, e.posterUrl, e.genre, v.name, e.startDate, e.endDate, e.saleType, e.ageRating, e.viewCount, e.createdAt
                     order by
-                        case when :sort = com.interpark_clone.global.enums.SortType.VIEW then e.viewCount end desc,
-                        case when :sort = com.interpark_clone.global.enums.SortType.RESERVATION then count(r.id) end desc,
-                        case when :sort = com.interpark_clone.global.enums.SortType.CLOSING_SOON then e.endDate end asc,
-                        case when :sort = com.interpark_clone.global.enums.SortType.LATEST then e.createdAt end desc,
+                        case when :sort = 'VIEW' then e.viewCount end desc,
+                        case when :sort = 'RESERVATION' then coalesce(sum(r.ticketQuantity), 0) end desc,
+                        case when :sort = 'CLOSING_SOON' then e.endDate end asc,
+                        case when :sort = 'LATEST' then e.createdAt end desc,
                         e.createdAt desc
                     """,
             countQuery = """
@@ -216,7 +227,7 @@ public interface ExhibitionRepository extends JpaRepository<Exhibition, Long> {
             @Param("keyword") String keyword,
             @Param("statuses") List<ExhibitionStatus> statuses,
             @Param("region") City region,
-            @Param("sort") SortType sort,
+            @Param("sort") String sort,
             Pageable pageable
     );
 }

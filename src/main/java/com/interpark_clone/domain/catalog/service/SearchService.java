@@ -9,8 +9,6 @@ import com.interpark_clone.domain.concert.repository.ConcertRepository;
 import com.interpark_clone.domain.exhibition.dto.response.ExhibitionResponse;
 import com.interpark_clone.domain.exhibition.entity.ExhibitionStatus;
 import com.interpark_clone.domain.exhibition.repository.ExhibitionRepository;
-import com.interpark_clone.global.code.GeneralErrorCode;
-import com.interpark_clone.global.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,33 +28,24 @@ public class SearchService {
     @Transactional(readOnly = true)
     public SearchResponse search(SearchRequest request) {
 
-        // DTO 가공
-        String keyword = request.normalizedKeyword();
-        List<SearchSaleStatus> saleStatuses = request.saleStatusValues();
-
-        // 정렬 기준 검증
-        if (!request.isValidSort()) {
-            throw new GeneralException(GeneralErrorCode.INVALID_REQUEST_PARAMETER);
-        }
-
         // 콘서트 및 전시 조회
-        Pageable pageable = PageRequest.of(request.pageValue(), request.sizeValue());
-        Page<ConcertResponse> concerts = switch (request.genreValue()) {
+        Pageable pageable = PageRequest.of(request.page(), request.size());
+        Page<ConcertResponse> concerts = switch (request.genre()) {
             case ALL, CONCERT -> concertRepository.searchConcerts(
-                    keyword,
-                    concertStatuses(saleStatuses),
+                    request.keyword(),
+                    concertStatuses(request.saleStatuses()),
                     request.region(),
-                    request.sortValue(),
+                    request.sort().name(),
                     pageable
             );
             case EXHIBITION -> Page.empty(pageable);
         };
-        Page<ExhibitionResponse> exhibitions = switch (request.genreValue()) {
+        Page<ExhibitionResponse> exhibitions = switch (request.genre()) {
             case ALL, EXHIBITION -> exhibitionRepository.searchExhibitions(
-                    keyword,
-                    exhibitionStatuses(saleStatuses),
+                    request.keyword(),
+                    exhibitionStatuses(request.saleStatuses()),
                     request.region(),
-                    request.sortValue(),
+                    request.sort().name(),
                     pageable
             );
             case CONCERT -> Page.empty(pageable);

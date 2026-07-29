@@ -40,17 +40,33 @@ public class Reservation extends BaseEntity {
     @Column(name = "total_price", nullable = false)
     private Integer totalPrice;
 
+    @Column(name = "ticket_quantity", nullable = false)
+    private Integer ticketQuantity;
+
     @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReservationSeat> reservationSeats = new ArrayList<>();
 
     @Builder
     private Reservation(Member member, EventType eventType, Long eventRefId,
-                        List<Seat> seats, Integer totalPrice) {
+                        List<Seat> seats, Integer totalPrice, Integer ticketQuantity) {
         this.member = member;
         this.eventType = eventType;
         this.eventRefId = eventRefId;
         this.status = ReservationStatus.PENDING;
         this.totalPrice = totalPrice;
-        seats.forEach(seat -> this.reservationSeats.add(ReservationSeat.of(this, seat)));
+        this.ticketQuantity = resolveTicketQuantity(seats, ticketQuantity);
+        if (seats != null) {
+            seats.forEach(seat -> this.reservationSeats.add(ReservationSeat.of(this, seat)));
+        }
+    }
+
+    private int resolveTicketQuantity(List<Seat> seats, Integer ticketQuantity) {
+        if (seats != null && !seats.isEmpty()) {
+            return seats.size();
+        }
+        if (ticketQuantity != null) {
+            return ticketQuantity;
+        }
+        return 1;
     }
 }

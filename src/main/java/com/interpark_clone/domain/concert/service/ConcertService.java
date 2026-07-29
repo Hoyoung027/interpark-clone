@@ -37,9 +37,9 @@ public class ConcertService {
 
     @Transactional(readOnly = true)
     public Page<ConcertResponse> getConcertList(ConcertRequest request) {
-        Pageable pageable = PageRequest.of(request.pageValue(), request.sizeValue());
+        Pageable pageable = PageRequest.of(request.page(), request.size());
 
-        return switch (request.normalizedSort()) {
+        return switch (request.sort()) {
             // 랭킹순 정렬
             case RESERVATION -> {
                 LocalDate today = LocalDate.now();
@@ -65,7 +65,7 @@ public class ConcertService {
     public Page<ConcertClipResponse> getConcertClips(ConcertClipRequest request) {
 
         // 콘서트 클립 반환
-        Pageable pageable = PageRequest.of(request.pageValue(), request.sizeValue());
+        Pageable pageable = PageRequest.of(request.page(), request.size());
         LocalDate today = LocalDate.now();
 
         Page<ConcertClipResponse> clips = concertRepository.findConcertClipsOrderByRanking(
@@ -84,7 +84,8 @@ public class ConcertService {
         Concert concert = concertRepository.findById(concertId)
                 .orElseThrow(() -> new BusinessException(BusinessErrorCode.CONCERT_NOT_FOUND));
 
-        concert.increaseViewCount();
+        // 조회수 증가
+        concertRepository.increaseViewCount(concertId);
 
         // 콘서트 회차 정보 조회
         List<ConcertSchedule> schedule = concertScheduleRepository.findByConcertIdWithVenue(concertId);
@@ -98,15 +99,12 @@ public class ConcertService {
     @Transactional(readOnly = true)
     public Page<ConcertRankingResponse> getDailyRankings(ConcertRankingRequest request) {
 
-        // DTO 형식 맞춤
-        LocalDate targetDate = request.rankingDateValue();
-
         // 랭킹순 공연 반환
-        Pageable pageable = PageRequest.of(request.pageValue(), request.sizeValue());
+        Pageable pageable = PageRequest.of(request.page(), request.size());
         Page<ConcertRankingItemResponse> rankingItems = concertRepository.findDailyRankingItems(
                 request.genre(),
-                targetDate.atStartOfDay(),
-                targetDate.plusDays(1).atStartOfDay(),
+                request.rankingDate().atStartOfDay(),
+                request.rankingDate().plusDays(1).atStartOfDay(),
                 pageable
         );
 
