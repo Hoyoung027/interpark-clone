@@ -856,6 +856,12 @@ GET /api/v1/sports/clubs/{clubId}/games
 
 - 선예매 가능 여부를 반환하기 위해 `BaseballGame.preSaleAvailable` 컬럼을 추가한다.
 
+#### Error
+
+| HTTP | Code | 메시지 |
+|---:|---|---|
+| 404 | `CLUB_NOT_FOUND` | 존재하지 않는 구단입니다. |
+
 ---
 
 ## Venue API

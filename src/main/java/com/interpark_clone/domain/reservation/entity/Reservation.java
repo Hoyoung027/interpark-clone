@@ -72,11 +72,9 @@ public class Reservation extends BaseEntity {
         } else {
             resolvedQuantity = 1;
         }
-
         if (resolvedQuantity <= 0) {
             throw new BusinessException(BusinessErrorCode.INVALID_RESERVATION_QUANTITY);
         }
-
-        return 1;
+        return resolvedQuantity;
     }
 }

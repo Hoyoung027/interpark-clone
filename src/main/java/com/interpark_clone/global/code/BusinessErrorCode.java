@@ -23,6 +23,9 @@ public enum BusinessErrorCode implements Code{
     EXHIBITION_NOT_FOUND(404, "존재하지 않는 전시입니다."),
     INVALID_EXHIBITION_SCHEDULE(400, "유효하지 않은 전시 일정입니다."),
 
+    // 스포츠 관련 에러
+    CLUB_NOT_FOUND(404, "존재하지 않는 구단입니다."),
+
     // 경기장 관련 에러
     VENUE_NOT_FOUND(404, "존재하지 않는 경기장입니다."),
 
