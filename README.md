@@ -144,31 +144,10 @@
 
 - [JWT 인증 객체 구성과 DB 조회 여부 결정](https://github.com/Hoyoung027/interpark-clone/wiki/JWT-%EC%9D%B8%EC%A6%9D-%EA%B0%9D%EC%B2%B4-%EA%B5%AC%EC%84%B1%EA%B3%BC-DB-%EC%A1%B0%ED%9A%8C-%EC%97%AC%EB%B6%80-%EA%B2%B0%EC%A0%95)
 - [JWT 인증 실패 처리 구조](https://github.com/Hoyoung027/interpark-clone/wiki/JWT-%EC%9D%B8%EC%A6%9D-%EC%8B%A4%ED%8C%A8-%EC%B2%98%EB%A6%AC-%EA%B5%AC%EC%A1%B0)
-- [API 요청 검증 원칙 ](https://github.com/Hoyoung027/interpark-clone/wiki/API-%EC%9A%94%EC%B2%AD-%EA%B2%80%EC%A6%9D-%EC%9B%90%EC%B9%99)
+- [API 요청 검증 원칙](https://github.com/Hoyoung027/interpark-clone/wiki/API-%EC%9A%94%EC%B2%AD-%EA%B2%80%EC%A6%9D-%EC%9B%90%EC%B9%99)
+
 
 ---
-
-## 향후 개선 사항
-
-### 정렬 로직 개선
-- [x] `OpeningService`(콘서트/전시 오픈예정 목록) 정렬: `ExhibitionRepository.searchExhibitions`와 동일하게 `CASE WHEN :sort = 'xxx' THEN ... END` 패턴으로 정렬 기준(`openAt`/`latest`/`viewCount`)을 쿼리 레벨로 내림. 정렬값 검증(`isValidSort`)이 raw nullable 필드를 검사해 `sort` 미전달 시 NPE 나던 것도 함께 수정.
-
-### 스키마/데이터 정합성
-- [ ] `ConcertSchedule`: `perform_date` → `start_date`/`end_date` 등 NOT NULL 컬럼 추가 시 기존 데이터 백필 마이그레이션 누락
-- [ ] `Concert`/`Exhibition`: `genre`/`sale_type`/`age_rating` NOT NULL 적용 전 기존 행 백필 필요
-- [ ] `Payment`: `created_at`/`updated_at` 감사 컬럼이 엔티티엔 매핑되어 있으나 DB 마이그레이션에 컬럼 정의가 없음 (`ddl-auto: validate` 환경에서 기동 실패 가능)
-- [ ] `BaseballGame`: `pre_sale_available` NOT NULL 컬럼 추가 시 기존 행 backfill 마이그레이션 없음
-- [ ] `ConcertSchedule` 생성자에 `startDate < endDate` 검증이 없어 잘못된 시간 구간의 일정이 생성될 수 있음
-
-### 쿼리 정확성
-- [ ] `ConcertRepository`: 클립 목록 조회 시 본문 쿼리는 `ConcertSchedule`을 inner join하지만 `countQuery`는 조인이 빠져 있어 페이지 수가 실제 결과보다 많게 계산됨
-
-### API 계약/문서
-- [ ] `API_LIST.md` / `ConcertRankingResponse`: 일간 랭킹 날짜 응답이 문서(날짜만)와 DTO(시간 포함) 간 불일치
-- [ ] `ConcertController`의 Swagger 설명이 실제 랭킹 로직(장르는 필터, 확정 좌석 수 기준)과 다르게 서술되어 있음
-
-### 성능/인덱스
-- [ ] `ExhibitionRepository`: 키워드 검색이 선행 와일드카드 LIKE(`%keyword%`)라 인덱스를 못 타서 데이터 증가 시 풀스캔 우려 — 트라이그램/전문검색 인덱스 또는 검색 엔진 도입 검토
-- [ ] `Reservation(eventRefId, eventType, status, createdAt)` 복합 인덱스 부재 — 일간 랭킹 실시간 집계 쿼리가 트래픽 증가 시 풀스캔 비용 커질 수 있음
-- [ ] `ExhibitionRepository.findUpcomingExhibitions`: `join fetch e.venue`에 별칭이 없어 `e.venue.city` 재참조 시 불필요한 추가 조인 발생 가능
-- [ ] 모든 `@Query` 메서드에 `@Param` 어노테이션 누락 — 컴파일러 `-parameters` 플래그(파라미터 이름 보존)에 암묵적으로 의존 중, 빌드 설정에 따라 런타임 `IllegalStateException` 위험
+## 추후 개발 예정
+- [향후 개선 사항](Todo.md)
+---

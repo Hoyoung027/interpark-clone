@@ -39,7 +39,7 @@ public record OpeningRequest(
         @Schema(description = "조회 시작일입니다. 생략하면 내일 날짜가 적용됩니다.", type = "string", format = "date", example = "2026-08-01")
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
         LocalDate from,
-        @Schema(description = "조회 종료일입니다. 조회 시작일 기준 일주일 뒤까지 조회합니다. 최대 120일까지 조회할 수 있습니다.", type = "string", format = "date", example = "2026-08-07")
+        @Schema(description = "조회 종료일입니다. 입력이 없을 경우 조회 시작일 기준 일주일 뒤까지 조회합니다. 최대 120일까지 조회할 수 있습니다.", type = "string", format = "date", example = "2026-08-07")
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
         LocalDate to,
         @Schema(description = "페이지 번호입니다. 0부터 시작합니다.", defaultValue = "0", minimum = "0", example = "0")

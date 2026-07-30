@@ -2,7 +2,9 @@ package com.interpark_clone.domain.reservation.entity;
 
 import com.interpark_clone.domain.member.entity.Member;
 import com.interpark_clone.domain.venue.entity.Seat;
+import com.interpark_clone.global.code.BusinessErrorCode;
 import com.interpark_clone.global.entity.BaseEntity;
+import com.interpark_clone.global.exception.BusinessException;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -61,12 +63,20 @@ public class Reservation extends BaseEntity {
     }
 
     private int resolveTicketQuantity(List<Seat> seats, Integer ticketQuantity) {
+        int resolvedQuantity;
+
         if (seats != null && !seats.isEmpty()) {
-            return seats.size();
+            resolvedQuantity = seats.size();
+        } else if (ticketQuantity != null) {
+            resolvedQuantity = ticketQuantity;
+        } else {
+            resolvedQuantity = 1;
         }
-        if (ticketQuantity != null) {
-            return ticketQuantity;
+
+        if (resolvedQuantity <= 0) {
+            throw new BusinessException(BusinessErrorCode.INVALID_RESERVATION_QUANTITY);
         }
+
         return 1;
     }
 }

@@ -50,7 +50,7 @@ public record OpeningResponse(
                 exhibition.getVenue().getName(),
                 exhibition.getOpenAt(),
                 exhibition.getStartDate().atStartOfDay(),
-                exhibition.getEndDate().atTime(LocalTime.of(23, 59, 59)),
+                exhibition.getEndDate().atTime(LocalTime.MAX),
                 exhibition.getSaleType(),
                 exhibition.getAgeRating(),
                 exhibition.getStatus().name()

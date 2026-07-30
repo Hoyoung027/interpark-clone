@@ -83,7 +83,7 @@ public class Exhibition extends BaseEntity {
             Venue venue
     ) {
 
-        if (startDate == null || endDate == null || !startDate.isBefore(endDate)) {
+        if (startDate == null || endDate == null || !endDate.isAfter(startDate)) {
             throw new BusinessException(BusinessErrorCode.INVALID_EXHIBITION_SCHEDULE);
         }
 

@@ -24,7 +24,10 @@ public enum BusinessErrorCode implements Code{
     INVALID_EXHIBITION_SCHEDULE(400, "유효하지 않은 전시 일정입니다."),
 
     // 경기장 관련 에러
-    VENUE_NOT_FOUND(404, "존재하지 않는 경기장입니다.");
+    VENUE_NOT_FOUND(404, "존재하지 않는 경기장입니다."),
+
+    // 예약 관련 에러
+    INVALID_RESERVATION_QUANTITY(400, "예약 수량은 1 이상이어야 합니다.");
 
     private final int statusCode;
     private final String message;

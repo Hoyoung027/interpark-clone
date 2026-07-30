@@ -8,8 +8,8 @@ import com.interpark_clone.domain.venue.entity.Venue;
 import com.interpark_clone.global.enums.AgeRating;
 import com.interpark_clone.global.enums.SaleType;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 public record ExhibitionDetailResponse(
         Long exhibitionId,
@@ -21,8 +21,8 @@ public record ExhibitionDetailResponse(
         SaleType saleType,
         AgeRating ageRating,
         LocalDateTime openAt,
-        LocalDateTime startDate,
-        LocalDateTime endDate,
+        LocalDate startDate,
+        LocalDate endDate,
         VenueResponse venue
 ) {
     public static ExhibitionDetailResponse from(Exhibition exhibition) {
@@ -36,8 +36,8 @@ public record ExhibitionDetailResponse(
                 exhibition.getSaleType(),
                 exhibition.getAgeRating(),
                 exhibition.getOpenAt(),
-                exhibition.getStartDate().atStartOfDay(),
-                exhibition.getEndDate().atTime(LocalTime.of(23, 59, 59)),
+                exhibition.getStartDate(),
+                exhibition.getEndDate(),
                 VenueResponse.from(exhibition.getVenue())
         );
     }
