@@ -1,6 +1,7 @@
 package com.interpark_clone.domain.reservation.entity;
 
 import com.interpark_clone.domain.member.entity.Member;
+import com.interpark_clone.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -19,7 +20,7 @@ import lombok.NoArgsConstructor;
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class QueueEntry {
+public class QueueEntry extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

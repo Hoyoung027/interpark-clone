@@ -1,6 +1,7 @@
 package com.interpark_clone.domain.payment.entity;
 
 import com.interpark_clone.domain.reservation.entity.Reservation;
+import com.interpark_clone.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "payments")
 @Getter
 @NoArgsConstructor
-public class Payment {
+public class Payment extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

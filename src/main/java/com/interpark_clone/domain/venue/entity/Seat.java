@@ -1,5 +1,6 @@
 package com.interpark_clone.domain.venue.entity;
 
+import com.interpark_clone.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,7 +18,7 @@ import lombok.NoArgsConstructor;
 )
 @Getter
 @NoArgsConstructor
-public class Seat {
+public class Seat extends BaseEntity {
 
     public static final int MAX_ROW = 100;
     public static final int MAX_COL = 100;

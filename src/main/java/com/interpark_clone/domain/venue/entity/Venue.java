@@ -1,5 +1,6 @@
 package com.interpark_clone.domain.venue.entity;
 
+import com.interpark_clone.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -10,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "venue")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Venue {
+public class Venue extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

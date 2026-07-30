@@ -3,10 +3,13 @@ package com.interpark_clone.global.exception;
 import com.interpark_clone.global.code.BusinessErrorCode;
 import com.interpark_clone.global.code.GeneralErrorCode;
 import com.interpark_clone.global.response.Response;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -14,6 +17,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+import java.util.Comparator;
 
 @Slf4j
 @RestControllerAdvice
@@ -57,13 +62,47 @@ public class GlobalExceptionHandler {
 
         // 유효성 검증 메시지
         String message = e.getBindingResult()
-                .getFieldErrors()
+                .getAllErrors()
                 .stream()
                 .findFirst()
-                .map(FieldError::getDefaultMessage)
+                .map(ObjectError::getDefaultMessage)
                 .orElse(errorCode.getMessage());
 
         log.warn("MethodArgumentNotValidException: {}", message);
+
+        return ResponseEntity.status(errorCode.getStatusCode()).body(Response.fail(errorCode, message));
+    }
+
+    // @ModelAttribute 검증 실패
+    @ExceptionHandler(BindException.class)
+    public ResponseEntity<Response<Void>> handleBindException(BindException e) {
+        GeneralErrorCode errorCode = GeneralErrorCode.VALIDATION_ERROR;
+
+        String message = e.getBindingResult()
+                .getAllErrors()
+                .stream()
+                .findFirst()
+                .map(ObjectError::getDefaultMessage)
+                .orElse(errorCode.getMessage());
+
+        log.warn("BindException: {}", message);
+
+        return ResponseEntity.status(errorCode.getStatusCode()).body(Response.fail(errorCode, message));
+    }
+
+    // @RequestParam 검증 실패
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Response<Void>> handleConstraintViolationException(ConstraintViolationException e) {
+        GeneralErrorCode errorCode = GeneralErrorCode.VALIDATION_ERROR;
+
+        String message = e.getConstraintViolations()
+                .stream()
+                .sorted(Comparator.comparing(violation -> violation.getPropertyPath().toString()))
+                .findFirst()
+                .map(violation -> violation.getMessage())
+                .orElse(errorCode.getMessage());
+
+        log.warn("ConstraintViolationException: {}", message);
 
         return ResponseEntity.status(errorCode.getStatusCode()).body(Response.fail(errorCode, message));
     }

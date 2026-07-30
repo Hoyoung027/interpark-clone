@@ -1,17 +1,12 @@
 package com.interpark_clone.domain.exhibition.entity;
 
 import com.interpark_clone.domain.venue.entity.Venue;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import com.interpark_clone.global.code.BusinessErrorCode;
+import com.interpark_clone.global.entity.BaseEntity;
+import com.interpark_clone.global.enums.AgeRating;
+import com.interpark_clone.global.enums.SaleType;
+import com.interpark_clone.global.exception.BusinessException;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,7 +19,7 @@ import java.time.LocalDateTime;
 @Table(name = "exhibition")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Exhibition {
+public class Exhibition extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,8 +38,27 @@ public class Exhibition {
     @Column(name = "open_at", nullable = false)
     private LocalDateTime openAt;
 
-    @Column(nullable = false)
-    private Boolean earlybird;
+    @Column(name = "poster_url", length = 500)
+    private String posterUrl;
+
+    @Column(name = "view_count", nullable = false)
+    private Integer viewCount = 0;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private ExhibitionGenre genre;
+
+    @Lob
+    @Column(columnDefinition = "text")
+    private String description;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private SaleType saleType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private AgeRating ageRating;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -60,15 +74,28 @@ public class Exhibition {
             LocalDate startDate,
             LocalDate endDate,
             LocalDateTime openAt,
-            Boolean earlybird,
+            String posterUrl,
+            ExhibitionGenre genre,
+            String description,
+            SaleType saleType,
+            AgeRating ageRating,
             ExhibitionStatus status,
             Venue venue
     ) {
+
+        if (startDate == null || endDate == null || !endDate.isAfter(startDate)) {
+            throw new BusinessException(BusinessErrorCode.INVALID_EXHIBITION_SCHEDULE);
+        }
+
         this.title = title;
         this.startDate = startDate;
         this.endDate = endDate;
         this.openAt = openAt;
-        this.earlybird = earlybird;
+        this.posterUrl = posterUrl;
+        this.genre = genre;
+        this.description = description;
+        this.saleType = saleType;
+        this.ageRating = ageRating;
         this.status = status;
         this.venue = venue;
     }

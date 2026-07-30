@@ -1,10 +1,10 @@
 package com.interpark_clone.domain.member.service;
 
 import com.interpark_clone.domain.member.dto.AuthDto;
-import com.interpark_clone.domain.member.dto.LoginRequest;
+import com.interpark_clone.domain.member.dto.request.LoginRequest;
 import com.interpark_clone.domain.member.dto.LogoutDto;
-import com.interpark_clone.domain.member.dto.SignupRequest;
-import com.interpark_clone.domain.member.dto.AuthResponse;
+import com.interpark_clone.domain.member.dto.request.SignupRequest;
+import com.interpark_clone.domain.member.dto.response.AuthResponse;
 import com.interpark_clone.domain.member.entity.Member;
 import com.interpark_clone.domain.member.entity.Provider;
 import com.interpark_clone.domain.member.entity.Role;
@@ -16,7 +16,6 @@ import com.interpark_clone.global.exception.GeneralException;
 import com.interpark_clone.global.exception.JwtAuthenticationException;
 import com.interpark_clone.global.util.CookieUtil;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

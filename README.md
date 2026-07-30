@@ -103,6 +103,17 @@
 - 캐시 스탬피드(동시 캐시 만료 시 DB 몰림) 방지 방법
 - 캐싱 적용 전/후 응답시간 비교
 
+#### 콘서트 일간 랭킹 개선 로드맵
+
+- 1차 구현: `Reservation` 테이블의 확정 예매 데이터를 기준으로 일간 랭킹을 실시간 집계한다.
+- 기준 데이터: 콘서트 예매는 `eventRefId = concertScheduleId`로 저장하고, `ConcertSchedule -> Concert` 관계를 통해 콘서트 단위 랭킹으로 집계한다.
+- 기본 랭킹 기준: 결제/예매 확정된 좌석 수 또는 예약 건수. 초기에는 확정 좌석 수를 우선 기준으로 사용한다.
+- 개선 1: Redis Sorted Set에 일간 랭킹을 캐싱한다. 예: `concert:ranking:daily:{yyyy-MM-dd}` / member: `concertId` / score: 확정 좌석 수.
+- 개선 2: 결제 승인/취소 이벤트 시 Redis score를 증감하고, DB 집계 결과와 비교해 정합성을 검증한다.
+- 개선 3: 트래픽이 커지면 예약 이벤트를 Redis Stream/List 등에 임시 적재한 뒤 배치로 DB 집계 테이블에 bulk update한다.
+- 개선 4: 장기 조회와 복구를 위해 `ConcertDailyRanking` 같은 일 단위 snapshot 테이블을 도입하는 방식을 비교한다.
+- 비교 포인트: 실시간 DB 집계, Redis 캐시, Redis 이벤트 적재 후 bulk update, DB snapshot 방식의 응답시간, 정합성, 복구 난이도를 부하테스트로 비교한다.
+
 ### 3.6 트랜잭션 관리
 - 트랜잭션 전파(Propagation), 특히 `REQUIRES_NEW`로 선점 로그와 결제 트랜잭션 분리
 - 트랜잭션 격리 수준과 동시 접근 시 발생 가능한 이상 현상
@@ -133,4 +144,10 @@
 
 - [JWT 인증 객체 구성과 DB 조회 여부 결정](https://github.com/Hoyoung027/interpark-clone/wiki/JWT-%EC%9D%B8%EC%A6%9D-%EA%B0%9D%EC%B2%B4-%EA%B5%AC%EC%84%B1%EA%B3%BC-DB-%EC%A1%B0%ED%9A%8C-%EC%97%AC%EB%B6%80-%EA%B2%B0%EC%A0%95)
 - [JWT 인증 실패 처리 구조](https://github.com/Hoyoung027/interpark-clone/wiki/JWT-%EC%9D%B8%EC%A6%9D-%EC%8B%A4%ED%8C%A8-%EC%B2%98%EB%A6%AC-%EA%B5%AC%EC%A1%B0)
+- [API 요청 검증 원칙](https://github.com/Hoyoung027/interpark-clone/wiki/API-%EC%9A%94%EC%B2%AD-%EA%B2%80%EC%A6%9D-%EC%9B%90%EC%B9%99)
 
+
+---
+## 추후 개발 예정
+- [향후 개선 사항](Todo.md)
+---
