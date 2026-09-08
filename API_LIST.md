@@ -550,6 +550,35 @@ GET /api/v1/exhibitions/{exhibitionId}
 
 ---
 
+### 5. 전시 잔여 티켓 수 조회
+
+```http
+GET /api/v1/exhibitions/{exhibitionId}/availability
+```
+
+#### Path Variables
+
+| 이름 | 타입 | 설명 |
+|---|---:|---|
+| `exhibitionId` | `Long` | 전시 ID |
+
+#### Response Payload
+
+```json
+{
+  "exhibitionId": 20,
+  "remainingQuantity": 734
+}
+```
+
+#### Error
+
+| HTTP | Code | 메시지 |
+|---:|---|---|
+| 404 | `EXHIBITION_NOT_FOUND` | 존재하지 않는 전시입니다. |
+
+---
+
 ## Opening API
 
 ### 1. 오픈 예정 공연/전시 목록 조회
@@ -881,6 +910,7 @@ GET /api/v1/venues/{venueId}
 #### Rule
 
 - `Venue.type = STADIUM`인 경기장만 조회한다.
+- 경기장에 속한 구역과 구역별 좌석 수를 함께 반환한다.
 - 경기장이 존재하지 않거나 `STADIUM` 타입이 아니면 `VENUE_NOT_FOUND`를 반환한다.
 
 #### Response Payload
@@ -891,7 +921,17 @@ GET /api/v1/venues/{venueId}
   "name": "잠실야구장",
   "city": "SEOUL",
   "address": "서울특별시 ...",
-  "imageUrl": "https://example.com/jamsil.jpg"
+  "imageUrl": "https://example.com/jamsil.jpg",
+  "totalSeatCount": 12000,
+  "sections": [
+    {
+      "sectionId": 1,
+      "name": "1루 A구역",
+      "grade": "VIP",
+      "price": 150000,
+      "seatCount": 600
+    }
+  ]
 }
 ```
 
@@ -900,6 +940,99 @@ GET /api/v1/venues/{venueId}
 | HTTP | Code | 메시지 |
 |---:|---|---|
 | 404 | `VENUE_NOT_FOUND` | 존재하지 않는 경기장입니다. |
+
+---
+
+## Reservation API
+
+### 1. 좌석 상태 조회
+
+```http
+GET /api/v1/reservations/seat-availability
+```
+
+#### Query Parameters
+
+| 이름 | 타입 | 필수 | 설명 |
+|---|---:|---:|---|
+| `eventType` | `EventType` | Y | `CONCERT`, `BASEBALL` |
+| `eventRefId` | `Long` | Y | 콘서트 일정 ID 또는 야구 경기 ID |
+| `sectionIds` | `List<Long>` | Y | 조회할 구역 ID 목록, 최대 5개 |
+
+#### Response Payload
+
+```json
+{
+  "eventType": "CONCERT",
+  "eventRefId": 10,
+  "sections": [
+    {
+      "sectionId": 1,
+      "sectionName": "A구역",
+      "sectionGrade": "VIP",
+      "price": 150000,
+      "seatCount": 120,
+      "availableSeatCount": 119,
+      "seats": [
+        {
+          "seatId": 1,
+          "seatRow": 1,
+          "seatCol": 1,
+          "isAvailable": true
+        }
+      ]
+    }
+  ]
+}
+```
+
+### 2. 좌석 점유 생성
+
+```http
+POST /api/v1/reservations/seat-holds
+```
+
+#### Request Body
+
+```json
+{
+  "eventType": "CONCERT",
+  "eventRefId": 10,
+  "seatIds": [1, 2],
+  "paymentMethod": "CARD"
+}
+```
+
+#### Response Payload
+
+```json
+{
+  "reservationId": 1,
+  "paymentId": 1,
+  "status": "PENDING",
+  "totalPrice": 300000,
+  "ticketQuantity": 2,
+  "expiresAt": "2026-08-04T12:05:00"
+}
+```
+
+#### Rule
+
+- 인증된 사용자만 요청할 수 있다.
+- `CONCERT`, `BASEBALL` 좌석형 이벤트만 요청할 수 있다.
+- 요청 좌석은 해당 이벤트 일정의 장소에 속해야 한다.
+- 이미 확정된 좌석 또는 만료되지 않은 점유 좌석은 다시 점유할 수 없다.
+- 점유 만료 시간은 생성 시점부터 5분이다.
+
+#### Error
+
+| HTTP | Code | 메시지 |
+|---:|---|---|
+| 400 | `SEAT_VENUE_MISMATCH` | 이벤트 장소에 속하지 않는 좌석입니다. |
+| 401 | `UNAUTHORIZED` | 인증이 필요합니다. |
+| 404 | `EVENT_SCHEDULE_NOT_FOUND` | 존재하지 않는 이벤트 일정입니다. |
+| 404 | `SEAT_NOT_FOUND` | 존재하지 않는 좌석입니다. |
+| 409 | `SEAT_ALREADY_HELD` | 이미 선택할 수 없는 좌석입니다. |
 
 ---
 

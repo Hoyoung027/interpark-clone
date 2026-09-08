@@ -48,3 +48,6 @@ out/
 application-local.yaml
 application-local.yml
 
+# Local mock data seed script (not for version control)
+mock_data.sql
+
