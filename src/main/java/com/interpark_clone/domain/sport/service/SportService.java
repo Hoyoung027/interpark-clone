@@ -25,12 +25,12 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class SportService {
 
     private final BaseballClubRepository baseballClubRepository;
     private final BaseballGameRepository baseballGameRepository;
 
+    @Transactional(readOnly = true)
     public Page<SportClubResponse> getAvailableClubs(SportPageRequest request) {
 
         // 예약 가능 구단 조회
@@ -40,6 +40,7 @@ public class SportService {
                 .map(SportClubResponse::from);
     }
 
+    @Transactional(readOnly = true)
     public Page<WeeklySportGameResponse> getWeeklyGames(SportPageRequest request) {
 
         // 이번 주 날짜 범위 생성
@@ -54,6 +55,7 @@ public class SportService {
                 .map(WeeklySportGameResponse::from);
     }
 
+    @Transactional(readOnly = true)
     public Page<ClubSportGameResponse> getClubGames(Long clubId, ClubGamesRequest request) {
 
         if (!baseballClubRepository.existsById(clubId)) {
