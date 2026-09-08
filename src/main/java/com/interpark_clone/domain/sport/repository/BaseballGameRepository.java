@@ -10,8 +10,16 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface BaseballGameRepository extends JpaRepository<BaseballGame, Long> {
+
+    @Query("""
+            select game.venue.id
+            from BaseballGame game
+            where game.id = :gameId
+            """)
+    Optional<Long> findVenueIdById(@Param("gameId") Long gameId);
 
     @Query(
             value = """

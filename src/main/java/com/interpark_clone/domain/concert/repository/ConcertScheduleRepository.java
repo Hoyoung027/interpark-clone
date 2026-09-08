@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface ConcertScheduleRepository extends JpaRepository<ConcertSchedule, Long> {
 
@@ -23,6 +24,13 @@ public interface ConcertScheduleRepository extends JpaRepository<ConcertSchedule
             order by cs.startDate asc
             """)
     List<ConcertSchedule> findByConcertIdWithVenue(@Param("concertId") Long concertId);
+
+    @Query("""
+            select cs.venue.id
+            from ConcertSchedule cs
+            where cs.id = :scheduleId
+            """)
+    Optional<Long> findVenueIdById(@Param("scheduleId") Long scheduleId);
 
     @Query("""
             select cs

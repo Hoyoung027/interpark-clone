@@ -22,7 +22,7 @@ public class Payment extends BaseEntity {
     @JoinColumn(name = "reservation_id", nullable = false)
     private Reservation reservation;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = true, length = 100)
     private String PGTransactionId;
 
     @Column(nullable = false)
@@ -40,7 +40,7 @@ public class Payment extends BaseEntity {
     public Payment(Reservation reservation, Integer amount, PaymentStatus status, PaymentMethod method) {
         this.reservation = reservation;
         this.amount = amount;
-        this.status = PaymentStatus.READY;;
+        this.status = status != null ? status : PaymentStatus.READY;
         this.method = method;
     }
 }
