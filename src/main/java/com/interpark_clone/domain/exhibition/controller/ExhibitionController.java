@@ -3,6 +3,7 @@ package com.interpark_clone.domain.exhibition.controller;
 import com.interpark_clone.domain.exhibition.dto.request.ExhibitionRankingRequest;
 import com.interpark_clone.domain.exhibition.dto.request.ExhibitionRequest;
 import com.interpark_clone.domain.exhibition.dto.request.RegionalExhibitionRequest;
+import com.interpark_clone.domain.exhibition.dto.response.ExhibitionAvailabilityResponse;
 import com.interpark_clone.domain.exhibition.dto.response.ExhibitionDetailResponse;
 import com.interpark_clone.domain.exhibition.dto.response.ExhibitionRankingResponse;
 import com.interpark_clone.domain.exhibition.dto.response.ExhibitionResponse;
@@ -35,6 +36,25 @@ import java.util.List;
 public class ExhibitionController {
 
     private final ExhibitionService exhibitionService;
+
+    @Operation(summary = "전시 잔여 티켓 수 조회", description = "전시 ID로 현재 잔여 티켓 수를 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 전시")
+    })
+    @GetMapping("/api/v1/exhibitions/{exhibitionId}/availability")
+    public ResponseEntity<Response<ExhibitionAvailabilityResponse>> getExhibitionAvailability(
+            @Parameter(description = "조회할 전시 ID", required = true, example = "1")
+            @Positive @PathVariable Long exhibitionId
+    ) {
+        ExhibitionAvailabilityResponse availability = exhibitionService.getExhibitionAvailability(exhibitionId);
+        Response<ExhibitionAvailabilityResponse> response = Response.success(
+                SuccessCode.GET_SUCCESS,
+                availability,
+                "전시 잔여 티켓 수 조회 API"
+        );
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 
     @Operation(summary = "전시 상세 조회", description = "전시 ID로 상세 정보를 조회합니다.")
     @ApiResponses({
