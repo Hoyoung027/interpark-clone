@@ -32,8 +32,8 @@ public class QueueEntry extends BaseEntity {
     private Member member;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "schedule_type", nullable = false)
-    private ScheduleType scheduleType;
+    @Column(name = "event_type", nullable = false)
+    private EventType eventType;
 
     @Column(name = "schedule_id", nullable = false)
     private Long scheduleId;
@@ -46,9 +46,9 @@ public class QueueEntry extends BaseEntity {
     private QueueStatus status;
 
     @Builder
-    public QueueEntry(Member member, ScheduleType scheduleType, Long scheduleId, Integer rank, QueueStatus status) {
+    public QueueEntry(Member member, EventType eventType, Long scheduleId, Integer rank, QueueStatus status) {
         this.member = member;
-        this.scheduleType = scheduleType;
+        this.eventType = eventType;
         this.scheduleId = scheduleId;
         this.rank = rank;
         this.status = QueueStatus.WAITING;
