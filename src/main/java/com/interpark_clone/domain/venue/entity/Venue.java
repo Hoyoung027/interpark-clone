@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class Venue extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "venue_id")
     private Long id;
 
@@ -35,12 +35,16 @@ public class Venue extends BaseEntity {
     @Column(name = "image_url", length = 500)
     private String imageUrl;
 
+    @Column(name = "total_seat_count")
+    private Integer totalSeatCount;
+
     @Builder
-    private Venue(String name, City city, String address, VenueType type, String imageUrl) {
+    private Venue(String name, City city, String address, VenueType type, String imageUrl, Integer totalSeatCount) {
         this.name = name;
         this.city = city;
         this.address = address;
         this.type = type;
         this.imageUrl = imageUrl;
+        this.totalSeatCount = totalSeatCount;
     }
 }

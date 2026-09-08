@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class Section extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "section_id")
     private Long id;
 
@@ -32,11 +32,15 @@ public class Section extends BaseEntity {
     @Column(nullable = false)
     private Integer price;
 
+    @Column(name = "seat_count")
+    private Integer seatCount;
+
     @Builder
-    public Section(Venue venue, String name, SectionGrade grade, Integer price) {
+    public Section(Venue venue, String name, SectionGrade grade, Integer price, Integer seatCount) {
         this.venue = venue;
         this.name = name;
         this.grade = grade;
         this.price = price;
+        this.seatCount = seatCount;
     }
 }
