@@ -133,12 +133,13 @@
 
 사용자는 콘서트 회차 또는 야구 경기의 좌석 배치도를 조회합니다.
 
-서버는 좌석별 상태를 반환합니다.
+서버는 좌석별 선택 가능 여부를 `isAvailable`로 반환합니다.
 
-- `AVAILABLE`: 선택 가능
-- `HOLDING`: 다른 사용자가 임시 점유 중
-- `SELECTED_BY_ME`: 현재 사용자가 점유 중
-- `RESERVED`: 이미 예약 확정
+- `true`: 선택 가능. 유효한 점유나 확정 내역이 없는 좌석
+- `false`: 선택 불가. `CONFIRMED`이거나 `HOLDING`이면서 `expiresAt > 현재 시각`인 점유가 있는 좌석
+
+본인 점유 여부나 선택 불가 사유를 별도 상태로 구분하지 않습니다. 만료 시각이 지난
+`HOLDING`은 DB 상태 정리 전이라도 선택 가능한 것으로 판단합니다.
 
 ### 4.2 좌석 선점 및 예약 생성
 
@@ -158,6 +159,8 @@
 
 ### 4.3 결제 승인
 
+후속 결제 PR에서 구현합니다. 현재 좌석 점유 PR의 범위에는 포함하지 않습니다.
+
 PG 결제 성공 후 confirm API 또는 webhook에서 처리합니다.
 
 서버 처리:
@@ -171,6 +174,9 @@ PG 결제 성공 후 confirm API 또는 webhook에서 처리합니다.
 7. `SeatHold.CONFIRMED` 변경
 
 ### 4.4 결제 실패/만료
+
+결제 실패에 따른 상태 변경은 후속 결제 PR에서 구현합니다. 주기적인 만료 상태 정리는
+`Todo.md`의 스케줄러 작업으로 관리하며, 현재 좌석 점유 PR의 범위에는 포함하지 않습니다.
 
 결제 실패 또는 5분 만료 시 처리합니다.
 
@@ -232,10 +238,12 @@ PG 결제 성공 후 confirm API 또는 webhook에서 처리합니다.
 
 ## 6. 필요한 API 초안
 
-### 6.1 선택 불가 좌석 목록 조회
+### 6.1 좌석 목록 및 선택 가능 여부 조회
+
+요청한 구역의 전체 좌석을 반환하며, 각 좌석의 `isAvailable`로 선택 가능 여부를 표시합니다.
 
 ```http
-GET /api/v1/reservations/unavailable-seats
+GET /api/v1/reservations/seat-availability
 ```
 
 Query Parameters:
@@ -244,7 +252,7 @@ Query Parameters:
 |---|---:|---:|---|
 | `eventType` | `EventType` | Y | `CONCERT`, `BASEBALL` |
 | `eventRefId` | `Long` | Y | 콘서트 회차 ID 또는 야구 경기 ID |
-| `sectionId` | `Long` | N | 특정 구역의 선택 불가 좌석만 조회할 때 사용 |
+| `sectionIds` | `List<Long>` | Y | 조회할 구역 ID 목록, 중복 제거 후 1~5개 |
 
 Response Payload:
 
@@ -252,15 +260,28 @@ Response Payload:
 {
   "eventType": "CONCERT",
   "eventRefId": 10,
-  "seats": [
+  "sections": [
     {
       "sectionId": 1,
       "sectionName": "A구역",
       "sectionGrade": "VIP",
       "price": 150000,
-      "seatId": 1,
-      "seatRow": 1,
-      "seatCol": 1
+      "seatCount": 2,
+      "availableSeatCount": 1,
+      "seats": [
+        {
+          "seatId": 1,
+          "seatRow": 1,
+          "seatCol": 1,
+          "isAvailable": true
+        },
+        {
+          "seatId": 2,
+          "seatRow": 1,
+          "seatCol": 2,
+          "isAvailable": false
+        }
+      ]
     }
   ]
 }
