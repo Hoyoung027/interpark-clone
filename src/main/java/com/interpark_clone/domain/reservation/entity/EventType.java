@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 public enum EventType {
     CONCERT("콘서트"),
     BASEBALL("야구"),
-    FOOTBALL("축구"),
     EXHIBITION("전시");
 
     private final String description;

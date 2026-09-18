@@ -8,6 +8,8 @@ import com.interpark_clone.domain.sport.dto.request.SportPageRequest;
 import com.interpark_clone.domain.sport.dto.response.ClubSportGameResponse;
 import com.interpark_clone.domain.sport.dto.response.SportClubResponse;
 import com.interpark_clone.domain.sport.dto.response.WeeklySportGameResponse;
+import com.interpark_clone.global.code.BusinessErrorCode;
+import com.interpark_clone.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,12 +25,12 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class SportService {
 
     private final BaseballClubRepository baseballClubRepository;
     private final BaseballGameRepository baseballGameRepository;
 
+    @Transactional(readOnly = true)
     public Page<SportClubResponse> getAvailableClubs(SportPageRequest request) {
 
         // 예약 가능 구단 조회
@@ -38,6 +40,7 @@ public class SportService {
                 .map(SportClubResponse::from);
     }
 
+    @Transactional(readOnly = true)
     public Page<WeeklySportGameResponse> getWeeklyGames(SportPageRequest request) {
 
         // 이번 주 날짜 범위 생성
@@ -52,7 +55,12 @@ public class SportService {
                 .map(WeeklySportGameResponse::from);
     }
 
+    @Transactional(readOnly = true)
     public Page<ClubSportGameResponse> getClubGames(Long clubId, ClubGamesRequest request) {
+
+        if (!baseballClubRepository.existsById(clubId)) {
+            throw new BusinessException(BusinessErrorCode.CLUB_NOT_FOUND);
+        }
 
         // 조회 대상 경기 상태 생성
         List<GameStatus> statuses = request.includeUpcoming()

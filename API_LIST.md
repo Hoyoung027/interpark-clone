@@ -550,6 +550,35 @@ GET /api/v1/exhibitions/{exhibitionId}
 
 ---
 
+### 5. 전시 잔여 티켓 수 조회
+
+```http
+GET /api/v1/exhibitions/{exhibitionId}/availability
+```
+
+#### Path Variables
+
+| 이름 | 타입 | 설명 |
+|---|---:|---|
+| `exhibitionId` | `Long` | 전시 ID |
+
+#### Response Payload
+
+```json
+{
+  "exhibitionId": 20,
+  "remainingQuantity": 734
+}
+```
+
+#### Error
+
+| HTTP | Code | 메시지 |
+|---:|---|---|
+| 404 | `EXHIBITION_NOT_FOUND` | 존재하지 않는 전시입니다. |
+
+---
+
 ## Opening API
 
 ### 1. 오픈 예정 공연/전시 목록 조회
@@ -856,6 +885,12 @@ GET /api/v1/sports/clubs/{clubId}/games
 
 - 선예매 가능 여부를 반환하기 위해 `BaseballGame.preSaleAvailable` 컬럼을 추가한다.
 
+#### Error
+
+| HTTP | Code | 메시지 |
+|---:|---|---|
+| 404 | `CLUB_NOT_FOUND` | 존재하지 않는 구단입니다. |
+
 ---
 
 ## Venue API
@@ -875,6 +910,7 @@ GET /api/v1/venues/{venueId}
 #### Rule
 
 - `Venue.type = STADIUM`인 경기장만 조회한다.
+- 경기장에 속한 구역과 구역별 좌석 수를 함께 반환한다.
 - 경기장이 존재하지 않거나 `STADIUM` 타입이 아니면 `VENUE_NOT_FOUND`를 반환한다.
 
 #### Response Payload
@@ -885,7 +921,17 @@ GET /api/v1/venues/{venueId}
   "name": "잠실야구장",
   "city": "SEOUL",
   "address": "서울특별시 ...",
-  "imageUrl": "https://example.com/jamsil.jpg"
+  "imageUrl": "https://example.com/jamsil.jpg",
+  "totalSeatCount": 12000,
+  "sections": [
+    {
+      "sectionId": 1,
+      "name": "1루 A구역",
+      "grade": "VIP",
+      "price": 150000,
+      "seatCount": 600
+    }
+  ]
 }
 ```
 
@@ -894,6 +940,125 @@ GET /api/v1/venues/{venueId}
 | HTTP | Code | 메시지 |
 |---:|---|---|
 | 404 | `VENUE_NOT_FOUND` | 존재하지 않는 경기장입니다. |
+
+---
+
+## Reservation API
+
+### 1. 좌석 상태 조회
+
+```http
+GET /api/v1/reservations/seat-availability
+```
+
+#### Query Parameters
+
+| 이름 | 타입 | 필수 | 설명 |
+|---|---:|---:|---|
+| `eventType` | `EventType` | Y | `CONCERT`, `BASEBALL` |
+| `eventRefId` | `Long` | Y | 콘서트 일정 ID 또는 야구 경기 ID |
+| `sectionIds` | `List<Long>` | Y | 조회할 구역 ID 목록, 최대 5개 |
+
+#### Response Payload
+
+```json
+{
+  "eventType": "CONCERT",
+  "eventRefId": 10,
+  "sections": [
+    {
+      "sectionId": 1,
+      "sectionName": "A구역",
+      "sectionGrade": "VIP",
+      "price": 150000,
+      "seatCount": 120,
+      "availableSeatCount": 119,
+      "seats": [
+        {
+          "seatId": 1,
+          "seatRow": 1,
+          "seatCol": 1,
+          "isAvailable": true
+        }
+      ]
+    }
+  ]
+}
+```
+
+#### Rule
+
+- 인증된 사용자만 요청할 수 있다. 성공 시 HTTP 200을 반환한다.
+- `eventRefId`와 구역 ID는 양수이며, `sectionIds`는 중복 제거 후 1~5개여야 한다.
+- 이벤트가 존재하고 조회 시점이 `openAt <= 현재 시각 < closeAt`이어야 한다.
+- 콘서트 회차는 `OPEN` 또는 `UPCOMING`, 야구 경기는 `OPEN` 또는 `SCHEDULED` 상태만 허용한다.
+- `CONFIRMED` 또는 만료되지 않은 `HOLDING` 점유가 있는 좌석은 `isAvailable: false`로 반환한다.
+- 현재 구현은 구역이 이벤트 장소에 속하는지 검증하지 않으며, 존재하지 않는 구역은 조회 결과에서 제외된다.
+
+#### Error
+
+| HTTP | Code | 메시지 |
+|---:|---|---|
+| 400 | `VALIDATION_ERROR` | 입력값이 올바르지 않습니다. (검증 항목별 메시지 반환) |
+| 401 | `UNAUTHORIZED` | 인증이 필요합니다. |
+| 404 | `EVENT_SCHEDULE_NOT_FOUND` | 존재하지 않는 이벤트 일정입니다. |
+| 409 | `EVENT_NOT_RESERVABLE` | 현재 예매할 수 없는 이벤트입니다. |
+
+### 2. 좌석 점유 생성
+
+```http
+POST /api/v1/reservations/seat-holds
+```
+
+#### Request Body
+
+```json
+{
+  "eventType": "CONCERT",
+  "eventRefId": 10,
+  "seatIds": [1, 2],
+  "paymentMethod": "CARD"
+}
+```
+
+#### Response Payload
+
+```json
+{
+  "reservationId": 1,
+  "paymentId": 1,
+  "status": "PENDING",
+  "totalPrice": 300000,
+  "ticketQuantity": 2,
+  "expiresAt": "2026-08-04T12:05:00"
+}
+```
+
+#### Rule
+
+- 인증된 사용자만 요청할 수 있다. 성공 시 HTTP 201을 반환한다.
+- `eventRefId`와 좌석 ID는 양수이며, `seatIds`는 중복 제거 후 1~10개여야 한다. `paymentMethod`는 필수다.
+- `CONCERT`, `BASEBALL` 좌석형 이벤트만 요청할 수 있다.
+- 요청 좌석은 해당 이벤트 일정의 장소에 속해야 한다.
+- 예매 기간은 `openAt <= 요청 처리 시작 시각 < closeAt`이다. 기준 시각은 `createSeatHold()` 진입 시각이며, 이후 잠금 대기나 저장 중 마감 시각을 넘겨도 허용한다.
+- 콘서트 회차는 `OPEN` 또는 `UPCOMING`, 야구 경기는 `OPEN` 또는 `SCHEDULED` 상태에서 예매 기간에 들어오면 점유할 수 있다. 취소·마감·매진·종료 상태는 기간과 무관하게 거절한다.
+- `closeAt`은 신규 점유 마감 기준이며, 이미 생성된 점유의 유효 기간을 단축하지 않는다.
+- 이미 확정된 좌석 또는 만료되지 않은 점유 좌석은 다시 점유할 수 없다.
+- 점유 만료 시각은 좌석 잠금 획득 후 점유 검사에 사용하는 시각부터 5분 뒤다.
+- `READ_COMMITTED` 트랜잭션과 비관적 쓰기 잠금으로 처리하며, 요청 좌석 중 하나라도 충돌하면 전체 요청을 거절한다.
+
+#### Error
+
+| HTTP | Code | 메시지 |
+|---:|---|---|
+| 400 | `VALIDATION_ERROR` | 입력값이 올바르지 않습니다. (검증 항목별 메시지 반환) |
+| 400 | `SEAT_VENUE_MISMATCH` | 이벤트 장소에 속하지 않는 좌석입니다. |
+| 401 | `UNAUTHORIZED` | 인증이 필요합니다. |
+| 404 | `EVENT_SCHEDULE_NOT_FOUND` | 존재하지 않는 이벤트 일정입니다. |
+| 404 | `MEMBER_NOT_FOUND` | 존재하지 않는 회원입니다. |
+| 404 | `SEAT_NOT_FOUND` | 존재하지 않는 좌석입니다. |
+| 409 | `SEAT_ALREADY_HELD` | 이미 선택할 수 없는 좌석입니다. |
+| 409 | `EVENT_NOT_RESERVABLE` | 현재 예매할 수 없는 이벤트입니다. |
 
 ---
 

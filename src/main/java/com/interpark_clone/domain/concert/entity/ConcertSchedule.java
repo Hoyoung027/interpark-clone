@@ -42,6 +42,10 @@ public class ConcertSchedule extends BaseEntity {
     @Column(name = "open_at", nullable = false)
     private LocalDateTime openAt;
 
+    // 예매 마감 시각: 이 시각부터 신규 좌석 점유 불가
+    @Column(name = "close_at", nullable = false)
+    private LocalDateTime closeAt;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private ConcertStatus status;
@@ -59,6 +63,7 @@ public class ConcertSchedule extends BaseEntity {
             LocalDateTime startDate,
             LocalDateTime endDate,
             LocalDateTime openAt,
+            LocalDateTime closeAt,
             ConcertStatus status,
             Venue venue,
             Concert concert
@@ -68,9 +73,14 @@ public class ConcertSchedule extends BaseEntity {
             throw new BusinessException(BusinessErrorCode.INVALID_CONCERT_SCHEDULE);
         }
 
+        if (openAt == null || closeAt == null || !openAt.isBefore(closeAt)) {
+            throw new BusinessException(BusinessErrorCode.INVALID_BOOKING_PERIOD);
+        }
+
         this.startDate = startDate;
         this.endDate = endDate;
         this.openAt = openAt;
+        this.closeAt = closeAt;
         this.status = status;
         this.venue = venue;
         this.concert = concert;

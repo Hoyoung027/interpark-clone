@@ -19,6 +19,13 @@ import java.util.Optional;
 
 public interface ExhibitionRepository extends JpaRepository<Exhibition, Long> {
 
+    @Query("""
+            select e.remainingQuantity
+            from Exhibition e
+            where e.id = :exhibitionId
+            """)
+    Optional<Integer> findRemainingQuantityById(@Param("exhibitionId") Long exhibitionId);
+
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(
             value = """

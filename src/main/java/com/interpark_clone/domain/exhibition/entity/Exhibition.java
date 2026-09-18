@@ -44,11 +44,16 @@ public class Exhibition extends BaseEntity {
     @Column(name = "view_count", nullable = false)
     private Integer viewCount = 0;
 
+    @Column(name = "total_quantity", nullable = false)
+    private Integer totalQuantity;
+
+    @Column(name = "remaining_quantity", nullable = false)
+    private Integer remainingQuantity;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private ExhibitionGenre genre;
 
-    @Lob
     @Column(columnDefinition = "text")
     private String description;
 
@@ -75,6 +80,7 @@ public class Exhibition extends BaseEntity {
             LocalDate endDate,
             LocalDateTime openAt,
             String posterUrl,
+            Integer totalQuantity,
             ExhibitionGenre genre,
             String description,
             SaleType saleType,
@@ -92,6 +98,8 @@ public class Exhibition extends BaseEntity {
         this.endDate = endDate;
         this.openAt = openAt;
         this.posterUrl = posterUrl;
+        this.totalQuantity = totalQuantity;
+        this.remainingQuantity = totalQuantity;
         this.genre = genre;
         this.description = description;
         this.saleType = saleType;

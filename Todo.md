@@ -4,6 +4,10 @@
 - [ ] `ConcertRepository`: 클립 목록 조회 시 본문 쿼리는 `ConcertSchedule`을 inner join하지만 `countQuery`는 조인이 빠져 있어 페이지 수가 실제 결과보다 많게 계산됨
 - [ ] `ExhibitionRepository.findUpcomingExhibitions`: `join fetch e.venue`에 별칭이 없어 `e.venue.city` 재참조 시 불필요한 추가 조인 발생 가능
 
+### 예약/점유 만료 처리
+- [ ] 만료 상태 정리 스케줄러 도입: `HOLDING`이면서 `expiresAt <= 현재 시각`인 점유와 연결된 `PENDING` 예약을 `EXPIRED`로 업데이트하는 스케줄러 도입. 
+초기 실행 주기는 5분으로 검토하고, 만료 대상 조회 인덱스와 소량 배치 처리로 DB 부하 제한 — 처리 시간과 만료 처리 지연을 측정해 조정
+
 ### 성능/인덱스
 - [ ] 트래픽 증가 시 주요 목록/랭킹/검색 쿼리에 대해 `EXPLAIN ANALYZE` 기반 복합 인덱스 도입 검토 — 예약 집계, 오픈 예정 조회, 장르/지역 필터, 스포츠 경기 조회를 우선 확인
 - [ ] 콘서트/전시 키워드 검색이 선행 와일드카드 LIKE(`%keyword%`)라 일반 B-tree 인덱스를 못 탐 — PostgreSQL trigram 인덱스, 전문검색, 또는 검색 엔진 도입 검토

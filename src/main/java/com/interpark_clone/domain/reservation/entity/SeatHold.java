@@ -13,13 +13,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(
-        name = "seat_hold",
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        name = "uk_seat_hold_seat_schedule",
-                        columnNames = {"seat_id", "schedule_type", "schedule_id"}
-                )
-        }
+        name = "seat_hold"
 )
 @Getter
 @NoArgsConstructor
@@ -40,9 +34,13 @@ public class SeatHold extends BaseEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reservation_id")
+    private Reservation reservation;
+
     @Enumerated(EnumType.STRING)
-    @Column(name = "schedule_type", nullable = false, length = 20)
-    private ScheduleType scheduleType;
+    @Column(name = "event_type", nullable = false, length = 20)
+    private EventType eventType;
 
     @Column(name = "schedule_id", nullable = false)
     private Long scheduleId;
@@ -55,12 +53,36 @@ public class SeatHold extends BaseEntity {
     private LocalDateTime expiresAt;
 
     @Builder
-    private SeatHold(Seat seat, Member member, ScheduleType scheduleType, Long scheduleId) {
+    private SeatHold(Seat seat, Member member, Reservation reservation,
+                     EventType eventType, Long scheduleId, LocalDateTime expiresAt) {
         this.seat = seat;
         this.member = member;
-        this.scheduleType = scheduleType;
+        this.reservation = reservation;
+        this.eventType = eventType;
         this.scheduleId = scheduleId;
         this.status = SeatHoldStatus.HOLDING;
-        this.expiresAt = LocalDateTime.now().plus(HOLD_DURATION);
+        this.expiresAt = expiresAt;
+    }
+
+    public static LocalDateTime calculateExpiresAt(LocalDateTime now) {
+        return now.plus(HOLD_DURATION);
+    }
+
+    public static SeatHold create(
+            Seat seat,
+            Member member,
+            Reservation reservation,
+            EventType eventType,
+            Long scheduleId,
+            LocalDateTime expiresAt
+    ) {
+        return SeatHold.builder()
+                .seat(seat)
+                .member(member)
+                .reservation(reservation)
+                .eventType(eventType)
+                .scheduleId(scheduleId)
+                .expiresAt(expiresAt)
+                .build();
     }
 }

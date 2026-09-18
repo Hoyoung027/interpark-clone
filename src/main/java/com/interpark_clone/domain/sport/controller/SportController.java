@@ -11,6 +11,7 @@ import com.interpark_clone.global.response.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -65,7 +66,10 @@ public class SportController {
     }
 
     @Operation(summary = "특정 구단 경기 목록 조회", description = "특정 구단의 예매 가능 경기 또는 오픈 예정 포함 경기 목록을 페이지 단위로 조회합니다.")
-    @ApiResponse(responseCode = "200", description = "조회 성공")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 구단")
+    })
     @GetMapping("/api/v1/sports/clubs/{clubId}/games")
     public ResponseEntity<Response<List<ClubSportGameResponse>>> getClubGames(
             @Parameter(description = "조회할 야구 구단 ID", required = true, example = "1")

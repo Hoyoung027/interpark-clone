@@ -3,6 +3,7 @@ package com.interpark_clone.domain.exhibition.service;
 import com.interpark_clone.domain.exhibition.dto.request.ExhibitionRankingRequest;
 import com.interpark_clone.domain.exhibition.dto.request.ExhibitionRequest;
 import com.interpark_clone.domain.exhibition.dto.request.RegionalExhibitionRequest;
+import com.interpark_clone.domain.exhibition.dto.response.ExhibitionAvailabilityResponse;
 import com.interpark_clone.domain.exhibition.dto.response.ExhibitionRankingItemResponse;
 import com.interpark_clone.domain.exhibition.dto.response.ExhibitionRankingResponse;
 import com.interpark_clone.domain.exhibition.dto.response.ExhibitionDetailResponse;
@@ -30,6 +31,15 @@ import java.util.stream.IntStream;
 public class ExhibitionService {
 
     private final ExhibitionRepository exhibitionRepository;
+
+    @Transactional(readOnly = true)
+    public ExhibitionAvailabilityResponse getExhibitionAvailability(Long exhibitionId) {
+
+        Integer remainingQuantity = exhibitionRepository.findRemainingQuantityById(exhibitionId)
+                .orElseThrow(() -> new BusinessException(BusinessErrorCode.EXHIBITION_NOT_FOUND));
+
+        return new ExhibitionAvailabilityResponse(exhibitionId, remainingQuantity);
+    }
 
     @Transactional
     public ExhibitionDetailResponse getExhibition(Long exhibitionId) {

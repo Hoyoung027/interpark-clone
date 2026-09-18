@@ -44,7 +44,6 @@ public class Concert extends BaseEntity {
     @Column(name = "view_count", nullable = false)
     private Integer viewCount = 0;
 
-    @Lob
     @Column(columnDefinition = "text")
     private String description;
 
