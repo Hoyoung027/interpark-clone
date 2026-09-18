@@ -2,6 +2,8 @@ package com.interpark_clone.domain.sport.entity;
 
 import com.interpark_clone.domain.venue.entity.Venue;
 import com.interpark_clone.global.entity.BaseEntity;
+import com.interpark_clone.global.code.BusinessErrorCode;
+import com.interpark_clone.global.exception.BusinessException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -37,6 +39,10 @@ public class BaseballGame extends BaseEntity {
     @Column(name = "open_at", nullable = false)
     private LocalDateTime openAt;
 
+    // 예매 마감 시각: 이 시각부터 신규 좌석 점유 불가
+    @Column(name = "close_at", nullable = false)
+    private LocalDateTime closeAt;
+
     @Column(name = "pre_sale_available", nullable = false)
     private Boolean preSaleAvailable = false;
 
@@ -60,14 +66,20 @@ public class BaseballGame extends BaseEntity {
     private BaseballGame(
             LocalDateTime gameDate,
             LocalDateTime openAt,
+            LocalDateTime closeAt,
             Boolean preSaleAvailable,
             GameStatus status,
             BaseballClub homeClub,
             BaseballClub awayClub,
             Venue venue
     ) {
+        if (openAt == null || closeAt == null || !openAt.isBefore(closeAt)) {
+            throw new BusinessException(BusinessErrorCode.INVALID_BOOKING_PERIOD);
+        }
+
         this.gameDate = gameDate;
         this.openAt = openAt;
+        this.closeAt = closeAt;
         this.preSaleAvailable = preSaleAvailable != null && preSaleAvailable;
         this.status = status;
         this.homeClub = homeClub;

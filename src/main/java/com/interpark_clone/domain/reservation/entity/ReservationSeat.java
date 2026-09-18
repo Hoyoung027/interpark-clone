@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
                 @UniqueConstraint(
                         name = "uk_reservation_seat",
                         columnNames = {
-                                "evnt_type",
+                                "event_type",
                                 "event_ref_id",
                                 "reservation_id",
                                 "seat_id"

@@ -1021,6 +1021,9 @@ POST /api/v1/reservations/seat-holds
 - 인증된 사용자만 요청할 수 있다.
 - `CONCERT`, `BASEBALL` 좌석형 이벤트만 요청할 수 있다.
 - 요청 좌석은 해당 이벤트 일정의 장소에 속해야 한다.
+- 예매 기간은 `openAt <= 요청 처리 시작 시각 < closeAt`이다. 기준 시각은 `createSeatHold()` 진입 시각이며, 이후 잠금 대기나 저장 중 마감 시각을 넘겨도 허용한다.
+- 콘서트 회차는 `OPEN` 또는 `UPCOMING`, 야구 경기는 `OPEN` 또는 `SCHEDULED` 상태에서 예매 기간에 들어오면 점유할 수 있다. 취소·마감·매진·종료 상태는 기간과 무관하게 거절한다.
+- `closeAt`은 신규 점유 마감 기준이며, 이미 생성된 점유의 만료 시각은 기존대로 생성 시점부터 5분이다.
 - 이미 확정된 좌석 또는 만료되지 않은 점유 좌석은 다시 점유할 수 없다.
 - 점유 만료 시간은 생성 시점부터 5분이다.
 
@@ -1033,6 +1036,7 @@ POST /api/v1/reservations/seat-holds
 | 404 | `EVENT_SCHEDULE_NOT_FOUND` | 존재하지 않는 이벤트 일정입니다. |
 | 404 | `SEAT_NOT_FOUND` | 존재하지 않는 좌석입니다. |
 | 409 | `SEAT_ALREADY_HELD` | 이미 선택할 수 없는 좌석입니다. |
+| 409 | `EVENT_NOT_RESERVABLE` | 현재 예매할 수 없는 이벤트입니다. |
 
 ---
 

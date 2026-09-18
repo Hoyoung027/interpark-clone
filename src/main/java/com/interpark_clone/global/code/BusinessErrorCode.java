@@ -31,6 +31,8 @@ public enum BusinessErrorCode implements Code{
 
     // 예약 관련 에러
     EVENT_SCHEDULE_NOT_FOUND(404, "존재하지 않는 이벤트 일정입니다."),
+    INVALID_BOOKING_PERIOD(400, "예매 오픈 시각은 마감 시각보다 이전이어야 합니다."),
+    EVENT_NOT_RESERVABLE(409, "현재 예매할 수 없는 이벤트입니다."),
     SEAT_NOT_FOUND(404, "존재하지 않는 좌석입니다."),
     SEAT_VENUE_MISMATCH(400, "이벤트 장소에 속하지 않는 좌석입니다."),
     SEAT_ALREADY_HELD(409, "이미 선택할 수 없는 좌석입니다."),
